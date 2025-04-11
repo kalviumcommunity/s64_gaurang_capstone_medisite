@@ -3,7 +3,10 @@ require('dotenv').config(); // Load environment variables from .env
 const express = require('express');
 const app = express();
 
+
 const PORT = process.env.PORT;
+
+
 const HOST = 'localhost';
 
 

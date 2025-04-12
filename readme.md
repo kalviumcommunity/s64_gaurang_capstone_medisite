@@ -48,6 +48,7 @@ Frontend: Vercel / Netlify.
 Backend: Render / AWS / Digital Ocean.
 
 
+
 Database: MongoDB Atlas.
 
 
@@ -107,3 +108,6 @@ Perform UI/UX testing.
 
 Deployment - frontend - versel 
                        Backend - render
+
+
+databse read and write is done

@@ -1,49 +1,44 @@
+// backend/routes/symptomRoutes.js
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 
-// Sample data – you can replace with MongoDB later
-let medicines = [
-  { id: 1, name: "Paracetamol", type: "Allopathy", uses: "Fever, pain relief" },
-  { id: 2, name: "Ashwagandha", type: "Ayurveda", uses: "Stress, stamina" },
-];
-
-// ✅ GET all medicines
-router.get('/', (req, res) => {
-  res.status(200).json(medicines);
-});
-
-// ✅ GET a medicine by name
-router.get('/:name', (req, res) => {
-  const name = req.params.name.toLowerCase();
-  const result = medicines.find(m => m.name.toLowerCase() === name);
-  if (result) {
-    res.json(result);
-  } else {
-    res.status(404).json({ message: "Medicine not found" });
+// POST: Add new user symptom entry
+router.post('/', async (req, res) => {
+  try {
+    const newUser = new User(req.body);
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
-// ✅ POST a new medicine
-router.post('/', (req, res) => {
-  const { name, type, uses } = req.body;
-
-  if (!name || !type || !uses) {
-    return res.status(400).json({ message: "Name, type, and uses are required" });
+// GET: All users with symptoms
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
+});
 
-  const newMedicine = {
-    id: medicines.length + 1,
-    name,
-    type,
-    uses
-  };
-
-  medicines.push(newMedicine);
-
-  res.status(201).json({
-    message: "Medicine added successfully",
-    data: newMedicine
-  });
+// ✅ PUT: Update a user by ID
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 module.exports = router;

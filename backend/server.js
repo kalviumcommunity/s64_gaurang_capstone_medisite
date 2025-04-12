@@ -1,15 +1,23 @@
-require('dotenv').config();
+// server.js
 const express = require('express');
-const app = express();
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
-// Use the PORT from environment (Render provides it)
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Listen on 0.0.0.0 instead of localhost
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Base route
+app.get('/', (req, res) => {
+  res.send('🚀 Server is running');
 });
 
-app.get('/ping', (req, res) => {
-  res.json({ message: 'pong' });
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server started at http://localhost:${PORT}`);
 });
+

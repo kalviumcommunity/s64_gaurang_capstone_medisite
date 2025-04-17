@@ -111,3 +111,7 @@ Deployment - frontend - versel
 
 
 databse read and write is done
+
+
+
+https://app.netlify.com/sites/medim/overview --netlify link 

@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   name: String,
   age: Number,
-  symptoms: [String], // Example: ["Fever", "Cough"]
+  symptoms: [String], 
 });
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
-database read and write
+

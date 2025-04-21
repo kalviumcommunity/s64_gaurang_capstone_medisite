@@ -11,15 +11,23 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Import Routes
+const symptomRoutes = require('./routes/symptomRoutes');
+const medicineRoutes = require('./routes/medicineRoutes');
+const diseaseRoutes = require('./routes/diseaseRoutes');
+const diagnosisRoutes = require('./routes/diagnosisRoutes');
+const userRoutes = require('./routes/userRoutes');
 
-const symptomRoutes = require('./routes/symptomRoutes');   // <- Optional, for POST symptoms
-
-app.use('/api/symptoms', symptomRoutes);     // POST: /api/symptoms
+// Use Routes
+app.use('/api/symptoms', symptomRoutes);
+app.use('/api/medicines', medicineRoutes);
+app.use('/api/diseases', diseaseRoutes);
+app.use('/api/diagnosis', diagnosisRoutes);
+app.use('/api/users', userRoutes);
 
 // Base route
 app.get('/', (req, res) => {
-  res.send('🚀 Server is running');
+  res.send('🚀 Server is running - Medicine Library API');
 });
 
 // MongoDB connection

@@ -1,22 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Symptom = require('../models/symptom');
+const User = require('../models/User');
 
-// POST a new symptom
+// Register a new user
 router.post('/', async (req, res) => {
   try {
-    const symptom = new Symptom(req.body);
-    await symptom.save();
-    res.status(201).json(symptom);
+    const user = new User(req.body);
+    await user.save();
+    res.status(201).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// GET all symptoms
+// Get all users
 router.get('/', async (req, res) => {
-  const symptoms = await Symptom.find();
-  res.json(symptoms);
+  const users = await User.find();
+  res.json(users);
 });
 
 module.exports = router;

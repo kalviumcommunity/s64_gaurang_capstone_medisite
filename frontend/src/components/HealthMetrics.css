@@ -1,0 +1,367 @@
+.health-metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 20px;
+}
+
+.health-metrics-content {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+}
+
+.health-metrics-form-section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: fit-content;
+}
+
+.health-metrics-form-section h2 {
+  font-size: 24px;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.health-metrics-form-section p {
+  color: #64748b;
+  margin-bottom: 30px;
+}
+
+.doctor-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #475569;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-doctors-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-doctors-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.search-doctors-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.recommended-doctors-section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.recommended-doctors-section h3 {
+  font-size: 20px;
+  color: #1e293b;
+  margin-bottom: 24px;
+}
+
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.doctor-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.doctor-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-header {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.doctor-avatar {
+  width: 64px;
+  height: 64px;
+  background: #e0e7ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #4f46e5;
+}
+
+.doctor-info h4 {
+  font-size: 18px;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.specialization {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.star-icon {
+  color: #eab308;
+}
+
+.experience {
+  padding-left: 8px;
+  border-left: 2px solid #e2e8f0;
+}
+
+.doctor-details {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.detail-item svg {
+  color: #2563eb;
+}
+
+.doctor-footer {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+
+.availability {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.book-appointment-btn {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.book-appointment-btn:hover {
+  background: #1d4ed8;
+}
+
+.loading-doctors,
+.no-doctors {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+.no-doctors-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.no-doctors p {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.no-doctors-sub {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1024px) {
+  .health-metrics-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .health-metrics-container {
+    padding: 10px;
+  }
+
+  .health-metrics-form-section,
+  .recommended-doctors-section,
+  .health-metrics-summary {
+    padding: 20px;
+  }
+
+  .doctors-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .doctor-card {
+    padding: 20px;
+  }
+}
+
+.health-metrics-summary {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.health-metrics-summary h2 {
+  font-size: 24px;
+  color: #1e293b;
+  margin-bottom: 24px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  background: #e0e7ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #4f46e5;
+}
+
+.metric-details {
+  flex: 1;
+}
+
+.metric-details h4 {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.score-indicator {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.score-indicator.excellent {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.score-indicator.good {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.score-indicator.fair {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.score-indicator.poor {
+  background: #fee2e2;
+  color: #b91c1c;
+} 

@@ -1,0 +1,828 @@
+.landing-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  overflow-x: hidden;
+}
+
+
+/* Navigation Bar */
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 4rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.nav-bar.scrolled {
+  padding: 1rem 4rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo a {
+  color: #1a4d6b;
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.nav-logo .subtitle {
+  color: #4eaaff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #1a4d6b;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.nav-links a:hover {
+  color: #4eaaff;
+  background: rgba(78, 170, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.ga-button {
+  background: linear-gradient(135deg, #4eaaff 0%, #43e97b 100%) !important;
+  color: white !important;
+  padding: 0.7rem 1.5rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 15px rgba(78, 170, 255, 0.2);
+  transition: all 0.3s ease !important;
+}
+
+.ga-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(78, 170, 255, 0.3) !important;
+  background: linear-gradient(135deg, #43e97b 0%, #4eaaff 100%) !important;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  height: 600px;
+  background: url('../assets/doctor-bg.jpg') no-repeat center center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to right,
+    rgba(30, 41, 59, 0.9),
+    rgba(30, 41, 59, 0.7)
+  );
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+  color: white;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.hero-content p {
+  font-size: 20px;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.search-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-input-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 20px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 20px 20px 20px 56px;
+  font-size: 18px;
+  border: none;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.search-button {
+  width: 100%;
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  background: #2563eb;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Healing Pathways Section */
+.healing-pathways {
+  padding: 6rem 0;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.healing-pathways::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.02), transparent);
+  pointer-events: none;
+}
+
+.healing-pathways h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #1a4d6b;
+  margin-bottom: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.pathways-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 3rem;
+  padding: 0 1rem;
+}
+
+.pathway-card {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pathway-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #4eaaff, #43e97b);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.pathway-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.pathway-card:hover::before {
+  opacity: 1;
+}
+
+.pathway-card .icon {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+  display: inline-block;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: #f7fafc;
+  transition: all 0.4s ease;
+}
+
+.ayurvedic .icon {
+  color: #9c27b0;
+}
+
+.allopathic .icon {
+  color: #4eaaff;
+}
+
+.pathway-card:hover .icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.pathway-card h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #1a4d6b;
+  font-weight: 700;
+}
+
+.pathway-card p {
+  color: #4a5568;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.pathway-card ul {
+  text-align: left;
+  margin-bottom: 2rem;
+  padding-left: 1.5rem;
+  list-style-type: none;
+}
+
+.pathway-card li {
+  margin-bottom: 1rem;
+  color: #2d3748;
+  font-size: 1.05rem;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.pathway-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #43e97b;
+  font-weight: bold;
+}
+
+.explore-btn {
+  background: transparent;
+  border: 2.5px solid currentColor;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.explore-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 0.6s ease, opacity 0.5s ease;
+  z-index: -1;
+}
+
+.ayurvedic .explore-btn {
+  color: #9c27b0;
+}
+
+.allopathic .explore-btn {
+  color: #4eaaff;
+}
+
+.explore-btn:hover {
+  color: white;
+  transform: translateY(-2px);
+}
+
+.explore-btn:hover::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.15;
+}
+
+/* Medicine Library Section */
+.medicine-library {
+  padding: 6rem 0;
+  background: #f7fafc;
+  position: relative;
+}
+
+.medicine-library h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #1a4d6b;
+  margin-bottom: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.search-filters {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.filter-btn {
+  padding: 0.8rem 2rem;
+  border: none;
+  background: white;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #4eaaff 0%, #43e97b 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(78, 170, 255, 0.2);
+}
+
+.medicines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 0 1rem 3rem 1rem;
+}
+
+.medicine-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.medicine-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+.medicine-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #1a4d6b;
+  font-weight: 700;
+}
+
+.medicine-card .type {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background: #e3f2fd;
+  color: #4eaaff;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.medicine-card p {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.view-details {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #4eaaff;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+}
+
+.view-details:hover {
+  gap: 1.2rem;
+  color: #43e97b;
+}
+
+.view-all {
+  display: block;
+  margin: 2rem auto 0;
+  padding: 1rem 3rem;
+  background: white;
+  border: 2px solid #4eaaff;
+  color: #4eaaff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-all:hover {
+  background: #4eaaff;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 170, 255, 0.2);
+}
+
+/* AI Health Assistant Section */
+.ai-assistant {
+  padding: 6rem 0;
+  background: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-assistant::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%234eaaff05" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,250.7C960,235,1056,181,1152,170.7C1248,160,1344,192,1392,208L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: cover;
+  opacity: 0.5;
+}
+
+.ai-assistant h2 {
+  font-size: 2.5rem;
+  color: #1a4d6b;
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.ai-assistant > p {
+  color: #4a5568;
+  margin-bottom: 3rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.chat-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.chat-messages {
+  padding: 2rem;
+  min-height: 250px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.assistant-message {
+  background: #f0f7ff;
+  color: #1a4d6b;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: left;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.chat-input {
+  display: flex;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+  position: relative;
+  z-index: 2;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  background: white;
+  color: #2d3748;
+  margin-right: 1rem;
+  transition: all 0.3s ease;
+}
+
+.chat-input input:focus {
+  border-color: #4eaaff;
+  box-shadow: 0 0 0 3px rgba(78, 170, 255, 0.1);
+  outline: none;
+}
+
+.chat-input button {
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, #4eaaff 0%, #43e97b 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(78, 170, 255, 0.2);
+}
+
+.chat-input button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 170, 255, 0.3);
+  background: linear-gradient(135deg, #43e97b 0%, #4eaaff 100%);
+}
+
+/* What We Offer Section */
+.offerings {
+  padding: 6rem 0;
+  background: #f7fafc;
+  position: relative;
+}
+
+.offerings h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #1a4d6b;
+  margin-bottom: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.offerings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 3rem;
+  padding: 0 1rem;
+}
+
+.offering-card {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 20px;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.offering-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #4eaaff, #43e97b);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.offering-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.offering-card:hover::before {
+  opacity: 1;
+}
+
+.offering-card .icon {
+  font-size: 3rem;
+  color: #4eaaff;
+  margin-bottom: 2rem;
+  display: inline-block;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: #f0f7ff;
+  transition: all 0.4s ease;
+}
+
+.offering-card:hover .icon {
+  transform: scale(1.1) rotate(5deg);
+  color: #43e97b;
+}
+
+.offering-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #1a4d6b;
+  font-weight: 700;
+}
+
+.offering-card p {
+  color: #4a5568;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  color: #4a5568;
+  font-style: italic;
+  font-size: 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #4eaaff33, transparent);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .nav-bar {
+    padding: 1rem 2rem;
+  }
+
+  .nav-links {
+    gap: 1.5rem;
+  }
+
+  .hero-section {
+    padding: 8rem 1.5rem 5rem;
+  }
+
+  .hero-section h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-bar {
+    padding: 1rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .nav-links a {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .hero-section {
+    height: 500px;
+  }
+
+  .hero-content h1 {
+    font-size: 36px;
+  }
+
+  .hero-content p {
+    font-size: 18px;
+  }
+
+  .search-input {
+    padding: 16px 16px 16px 48px;
+    font-size: 16px;
+  }
+
+  .search-button {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+
+  .pathways-container,
+  .medicines-grid,
+  .offerings-grid {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+
+  .pathway-card,
+  .medicine-card,
+  .offering-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .chat-container {
+    margin: 0 1rem;
+  }
+
+  .nav-logo a {
+    font-size: 20px;
+  }
+
+  .nav-logo .subtitle {
+    font-size: 12px;
+  }
+
+  .healing-pathways,
+  .medicine-library,
+  .ai-assistant,
+  .offerings {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-logo a {
+    font-size: 1.5rem;
+  }
+
+  .nav-logo .subtitle {
+    display: none;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .search-container h2 {
+    font-size: 1.2rem;
+  }
+
+  .pathway-card h3,
+  .medicine-card h3,
+  .offering-card h3 {
+    font-size: 1.3rem;
+  }
+} 

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-import { Button } from '@mui/material';
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -133,10 +132,16 @@ userSchema.methods.calculateHealthScore = function() {
   }
 
   // Calculate health metrics
+  let bmi = null;
+  if (this.height && this.weight) {
+    const heightInMeters = this.height / 100;
+    bmi = this.weight / (heightInMeters * heightInMeters);
+  }
+  
   this.healthMetrics = {
     physicalHealth: Math.min(100, baseScore + (this.medicalConditions ? -this.medicalConditions.length * 3 : 0)),
     mentalWellbeing: Math.min(100, baseScore),
-    dietQuality: Math.min(100, baseScore + (this.bmi >= 18.5 && this.bmi <= 24.9 ? 10 : 0)),
+    dietQuality: Math.min(100, baseScore + (bmi && bmi >= 18.5 && bmi <= 24.9 ? 10 : 0)),
     activityLevel: Math.min(100, baseScore + (this.totalSearches > 10 ? 5 : 0))
   };
 

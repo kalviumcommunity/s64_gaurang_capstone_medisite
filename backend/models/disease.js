@@ -26,4 +26,5 @@ module.exports = mongoose.model('Disease', diseaseSchema);
 //   treatment: String,
 // });
 
-// module.exports = mongoose.model('Disease', diseaseSchema);
+// module.exports = mongoose.m
+// odel('Disease', diseaseSchema);

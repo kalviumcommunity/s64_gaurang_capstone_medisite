@@ -78,39 +78,6 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-// Test OpenAI connection endpoint
-app.get('/api/test-openai', async (req, res) => {
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are a test assistant. Just say 'API connection successful'."
-        },
-        {
-          role: "user",
-          content: "Test connection"
-        }
-      ],
-      max_tokens: 50,
-      temperature: 0.7,
-    });
-
-    res.json({ 
-      status: 'success',
-      message: completion.choices[0].message.content,
-      apiKey: process.env.OPENAI_API_KEY ? 'API key is set' : 'API key is missing'
-    });
-  } catch (error) {
-    console.error('OpenAI Test Error:', error);
-    res.status(500).json({ 
-      status: 'error',
-      message: 'Failed to connect to OpenAI',
-      error: error.message
-    });
-  }
-});
 
 // Base route
 app.get('/', (req, res) => {

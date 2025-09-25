@@ -4,10 +4,11 @@ import { getHealthAssistantResponse } from '../services/deepSeekService';
 import './ChatAssistant.css';
 
 const ChatAssistant = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hi! I'm your Medical Assistant. You can ask me questions about symptoms, medicines, or general health concerns. How can I help you today?"
+      content: "Hi! I'm your Medical Assistant. Ask me anything about symptoms, medicines, or health."
     }
   ]);
   const [input, setInput] = useState('');
@@ -20,93 +21,79 @@ const ChatAssistant = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isOpen) scrollToBottom();
+  }, [messages, isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
     setError(null);
 
     try {
-      // Format conversation history for the AI service
-      const conversationHistory = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      // Call DeepSeek AI service
+      const conversationHistory = messages.map((msg) => ({ role: msg.role, content: msg.content }));
       const response = await getHealthAssistantResponse(userMessage, conversationHistory);
-      
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-    } catch (error) {
-      console.error('Error communicating with AI service:', error);
-      setError('Sorry, I encountered an error. Please try again later.');
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: "I apologize, but I'm having trouble connecting to the AI service right now. Please try again later."
-      }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: response }]);
+    } catch (err) {
+      console.error('Error communicating with AI service:', err);
+      setError('Connection issue. Please try again later.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="chat-assistant">
-      <div className="chat-container">
-        <div className="chat-messages">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
-            >
-              <div className="message-icon">
-                {message.role === 'user' ? <FaUser /> : <FaRobot />}
+    <div className={`floating-assistant ${isOpen ? 'open' : ''}`}>
+      {!isOpen && (
+        <button className="assistant-toggle" aria-label="Open assistant" onClick={() => setIsOpen(true)}>
+          <span role="img" aria-label="robot">🤖</span>
+        </button>
+      )}
+
+      {isOpen && (
+        <div className="assistant-panel">
+          <div className="assistant-header">
+            <div className="title"><FaRobot /> AI Health Assistant</div>
+            <button className="close-btn" aria-label="Close assistant" onClick={() => setIsOpen(false)}>×</button>
+          </div>
+
+          <div className="assistant-messages">
+            {messages.map((message, index) => (
+              <div key={index} className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}>
+                <div className="message-icon">{message.role === 'user' ? <FaUser /> : <FaRobot />}</div>
+                <div className="message-content">{message.content}</div>
               </div>
-              <div className="message-content">
-                {message.content}
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="message assistant-message">
-              <div className="message-icon">
-                <FaRobot />
-              </div>
-              <div className="message-content">
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
+            ))}
+            {isLoading && (
+              <div className="message assistant-message">
+                <div className="message-icon"><FaRobot /></div>
+                <div className="message-content">
+                  <div className="typing-indicator"><span></span><span></span><span></span></div>
                 </div>
               </div>
-            </div>
-          )}
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-          <div ref={messagesEndRef} />
+            )}
+            {error && <div className="error-message">{error}</div>}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <form onSubmit={handleSubmit} className="assistant-input-form">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your question..."
+              disabled={isLoading}
+            />
+            <button type="submit" disabled={isLoading || !input.trim()}>
+              <FaPaperPlane />
+            </button>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="chat-input-form">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your health-related question..."
-            disabled={isLoading}
-          />
-          <button type="submit" disabled={isLoading || !input.trim()}>
-            <FaPaperPlane />
-          </button>
-        </form>
-      </div>
+      )}
     </div>
   );
 };

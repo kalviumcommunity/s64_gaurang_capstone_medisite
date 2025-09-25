@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaHome, FaSearch, FaBook, FaRobot, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaSearch, FaBook, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import './Navigation.css';
 
 const Navigation = () => {
@@ -26,9 +26,6 @@ const Navigation = () => {
         </Link>
         <Link to="/library" className={location.pathname === '/library' ? 'active' : ''}>
           <FaBook /> Medicine Library
-        </Link>
-        <Link to="/chat" className={location.pathname === '/chat' ? 'active' : ''}>
-          <FaRobot /> Chat Assistant
         </Link>
         <Link to="/profile" className={location.pathname === '/profile' ? 'active' : ''}>
           <FaUser /> Profile

@@ -7,7 +7,7 @@ import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import Symptoms from './pages/Symptoms';
 import Library from './pages/Library';
-import Chat from './pages/Chat';
+import ChatAssistant from './components/ChatAssistant';
 
 function App() {
   return (
@@ -35,15 +35,13 @@ function App() {
               <Library />
             </PrivateRoute>
           } />
-          <Route path="/chat" element={
-            <PrivateRoute>
-              <Chat />
-            </PrivateRoute>
-          } />
+          {/* Chat page removed; floating assistant available on all pages */}
 
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        {/* Floating assistant visible on all routes */}
+        <ChatAssistant />
       </Router>
     </AuthProvider>
   );

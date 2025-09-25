@@ -1,52 +1,57 @@
 /**
- * DeepSeek AI API Service
- * This service handles communication with the DeepSeek API for AI health assistant functionalities
+ * Google AI Studio API Service
+ * This service handles communication with Google's Gemini API for AI health assistant functionalities
+ * Using Google AI Studio API Key for Gemini 1.5 Flash model
  */
 
-const DEEPSEEK_API_KEY = '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';
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const GOOGLE_API_KEY = 'AIzaSyBmtNIsoManDKg-nYYgi_cN14vRz0fhv7Y';
+const GOOGLE_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 /**
- * Get a health-related response from DeepSeek AI
+ * Get a health-related response from Google Gemini AI
  * @param {string} userMessage - The user's health-related query
  * @param {Array} conversationHistory - Previous conversation for context
  * @returns {Promise} - Promise resolving to AI response
  */
 export const getHealthAssistantResponse = async (userMessage, conversationHistory = []) => {
   try {
-    // Format conversation history in the format DeepSeek expects
-    const messages = [
-      {
-        role: "system",
-        content: "You are MediVerse's AI Health Assistant, a helpful medical information provider. You provide educational information about medical conditions, symptoms, treatments, and medicines. Always indicate that users should consult healthcare professionals for proper diagnosis and treatment. You do not diagnose conditions, prescribe medications, or provide personalized medical advice. You have knowledge about both allopathic and ayurvedic approaches."
-      },
-      ...conversationHistory,
-      { role: "user", content: userMessage }
-    ];
+    // Format conversation history for Gemini API
+    const systemPrompt = "You are MediVerse's AI Health Assistant, a helpful medical information provider. You provide educational information about medical conditions, symptoms, treatments, and medicines. Always indicate that users should consult healthcare professionals for proper diagnosis and treatment. You do not diagnose conditions, prescribe medications, or provide personalized medical advice. You have knowledge about both allopathic and ayurvedic approaches.";
+    
+    // Build conversation context
+    let conversationContext = systemPrompt + "\n\n";
+    conversationHistory.forEach(msg => {
+      conversationContext += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
+    });
+    conversationContext += `User: ${userMessage}`;
 
-    const response = await fetch(DEEPSEEK_API_URL, {
+    const response = await fetch(`${GOOGLE_API_URL}?key=${GOOGLE_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 2000
+        contents: [{
+          parts: [{
+            text: conversationContext
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2000,
+        }
       })
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to get response from DeepSeek AI');
+      throw new Error(error.error?.message || 'Failed to get response from Google Gemini AI');
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    return data.candidates[0].content.parts[0].text;
   } catch (error) {
-    console.error('Error in DeepSeek AI service:', error);
+    console.error('Error in Google Gemini AI service:', error);
     throw error;
   }
 };
@@ -58,38 +63,40 @@ export const getHealthAssistantResponse = async (userMessage, conversationHistor
  */
 export const getHealthInformation = async (condition) => {
   try {
-    const messages = [
-      {
-        role: "system",
-        content: "You are a medical information assistant. Provide factual, educational information about medical conditions, symptoms, and treatments. Format your response with clear sections for: Description, Causes, Symptoms, Treatments (both conventional and alternative if applicable), and When to Seek Medical Help."
-      },
-      { 
-        role: "user", 
-        content: `Provide detailed health information about ${condition}`
-      }
-    ];
+    console.log('Making Google Gemini 1.5 Flash API request for condition:', condition);
+    const prompt = `You are a medical information assistant. Provide factual, educational information about medical conditions, symptoms, and treatments. Format your response with clear sections for: Description, Causes, Symptoms, Treatments (both conventional and alternative if applicable), and When to Seek Medical Help.
 
-    const response = await fetch(DEEPSEEK_API_URL, {
+Provide detailed health information about ${condition}`;
+
+    const response = await fetch(`${GOOGLE_API_URL}?key=${GOOGLE_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: messages,
-        temperature: 0.3,
-        max_tokens: 1500
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 1500,
+        }
       })
     });
 
+    console.log('Google Gemini 1.5 Flash API response status:', response.status);
+
     if (!response.ok) {
       const error = await response.json();
+      console.error('Google Gemini API error:', error);
       throw new Error(error.error?.message || 'Failed to get health information');
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    console.log('Google Gemini 1.5 Flash API response data:', data);
+    return data.candidates[0].content.parts[0].text;
   } catch (error) {
     console.error('Error getting health information:', error);
     throw error;
@@ -97,34 +104,31 @@ export const getHealthInformation = async (condition) => {
 };
 
 /**
- * Get medicine information from DeepSeek AI
+ * Get medicine information from Google Gemini AI
  * @param {string} medicine - The medicine name to get information about
  * @returns {Promise} - Promise resolving to medicine information
  */
 export const getMedicineInformation = async (medicine) => {
   try {
-    const messages = [
-      {
-        role: "system",
-        content: "You are a medication information provider. Provide educational information about medications, including uses, dosages, side effects, and precautions. Include information about both conventional and ayurvedic medicines if applicable. Remind users to consult healthcare professionals before taking any medication."
-      },
-      { 
-        role: "user", 
-        content: `Provide detailed information about the medicine: ${medicine}`
-      }
-    ];
+    const prompt = `You are a medication information provider. Provide educational information about medications, including uses, dosages, side effects, and precautions. Include information about both conventional and ayurvedic medicines if applicable. Remind users to consult healthcare professionals before taking any medication.
 
-    const response = await fetch(DEEPSEEK_API_URL, {
+Provide detailed information about the medicine: ${medicine}`;
+
+    const response = await fetch(`${GOOGLE_API_URL}?key=${GOOGLE_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: messages,
-        temperature: 0.3,
-        max_tokens: 1500
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 1500,
+        }
       })
     });
 
@@ -134,15 +138,53 @@ export const getMedicineInformation = async (medicine) => {
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    return data.candidates[0].content.parts[0].text;
   } catch (error) {
     console.error('Error getting medicine information:', error);
     throw error;
   }
 };
 
+/**
+ * Test function to verify Google Gemini API connectivity
+ * @returns {Promise} - Promise resolving to test result
+ */
+export const testAPIConnection = async () => {
+  try {
+    const response = await fetch(`${GOOGLE_API_URL}?key=${GOOGLE_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: 'Hello, are you working?'
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 50,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Google Gemini API test failed');
+    }
+
+    const data = await response.json();
+    return { success: true, message: 'Google Gemini 1.5 Flash API connection successful' };
+  } catch (error) {
+    console.error('Google Gemini API test failed:', error);
+    return { success: false, message: error.message };
+  }
+};
+
 export default {
   getHealthAssistantResponse,
   getHealthInformation,
-  getMedicineInformation
+  getMedicineInformation,
+  testAPIConnection
 }; 

@@ -6,7 +6,7 @@ import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 import { BsArrowRight } from 'react-icons/bs';
 import { useAuth } from '../context/AuthContext';
 import SearchBar from '../components/SearchBar';
-import { getHealthInformation } from '../services/deepSeekService';
+import { getHealthInformation, testAPIConnection } from '../services/deepSeekService';
 import './Symptoms.css';
 
 const Symptoms = () => {
@@ -599,10 +599,13 @@ const Symptoms = () => {
     try {
       setLoadingInsights(true);
       setAiInsights('');
+      console.log('Fetching AI insights for:', symptom.name);
       const insights = await getHealthInformation(symptom.name);
+      console.log('AI insights received:', insights);
       setAiInsights(insights);
     } catch (error) {
       console.error('Error getting AI insights:', error);
+      setAiInsights('Sorry, I encountered an error while fetching AI insights. Please try again later.');
     } finally {
       setLoadingInsights(false);
     }
@@ -635,6 +638,7 @@ const Symptoms = () => {
       }
     } catch (e) {
       console.error('Analyze failed', e);
+      setAiInsights('Sorry, I encountered an error while analyzing your symptoms. Please try again later.');
     } finally {
       setLoadingInsights(false);
     }
@@ -932,10 +936,35 @@ const Symptoms = () => {
 
             {/* AI-powered insights section */}
             <div className="ai-insights-section">
-              <h3>
-                <FaLightbulb className="insights-icon" />
-                DeepSeek AI Insights
-              </h3>
+              <div className="insights-header">
+                <h3>
+                  <FaLightbulb className="insights-icon" />
+                  DeepSeek AI Insights
+                </h3>
+                {!loadingInsights && !aiInsights && (
+                  <div className="insights-actions">
+                    <button 
+                      className="retry-insights-btn"
+                      onClick={() => {
+                        if (selectedSymptom) {
+                          handleSymptomSelect(selectedSymptom);
+                        }
+                      }}
+                    >
+                      Get AI Insights
+                    </button>
+                    <button 
+                      className="test-api-btn"
+                      onClick={async () => {
+                        const result = await testAPIConnection();
+                        alert(result.success ? 'API is working!' : `API Error: ${result.message}`);
+                      }}
+                    >
+                      Test API
+                    </button>
+                  </div>
+                )}
+              </div>
               {loadingInsights ? (
                 <div className="loading-insights">
                   <div className="loading-spinner"></div>
@@ -948,7 +977,7 @@ const Symptoms = () => {
                   </div>
                 ) : (
                   <div className="no-insights">
-                    <p>Additional AI-powered insights are currently unavailable.</p>
+                    <p>Click "Get AI Insights" to fetch additional information about {selectedSymptom?.name || 'this condition'}.</p>
                   </div>
                 )
               )}

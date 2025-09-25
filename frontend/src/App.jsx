@@ -6,6 +6,7 @@ import Landing from './pages/Landing';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import Symptoms from './pages/Symptoms';
+import SymptomDetail from './pages/SymptomDetail';
 import Library from './pages/Library';
 import ChatAssistant from './components/ChatAssistant';
 
@@ -28,6 +29,11 @@ function App() {
           <Route path="/symptoms" element={
             <PrivateRoute>
               <Symptoms />
+            </PrivateRoute>
+          } />
+          <Route path="/symptom/:symptomName" element={
+            <PrivateRoute>
+              <SymptomDetail />
             </PrivateRoute>
           } />
           <Route path="/library" element={

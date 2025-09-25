@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaSearch, FaPills, FaLeaf, FaHome, FaBook, FaRobot, FaUser, FaExclamationTriangle } from 'react-icons/fa';
+import { FaSearch, FaPills, FaLeaf, FaHome, FaBook, FaUser, FaExclamationTriangle } from 'react-icons/fa';
 import { GiMedicines, GiHerbsBundle } from 'react-icons/gi';
 import { BiCheckCircle } from 'react-icons/bi';
 import './MedicineLibrary.css';
@@ -136,7 +136,6 @@ const MedicineLibrary = () => {
           <Link to="/"><FaHome /> Home</Link>
           <Link to="/symptoms"><FaSearch /> Symptoms</Link>
           <Link to="/library" className="active"><FaBook /> Medicine Library</Link>
-          <Link to="/chat"><FaRobot /> Chat Assistant</Link>
           <Link to="/profile"><FaUser /> Profile</Link>
         </div>
       </nav>

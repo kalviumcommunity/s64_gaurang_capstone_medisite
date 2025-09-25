@@ -1,25 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaSearch, FaTimes, FaThermometerHalf, FaPills, FaHome, FaBook, FaUser } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { FaHome, FaSearch, FaBook, FaUser, FaThermometerHalf, FaPills, FaLightbulb, FaArrowLeft } from 'react-icons/fa';
 import { GiMedicines } from 'react-icons/gi';
+import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 import { BsArrowRight } from 'react-icons/bs';
 import { useAuth } from '../context/AuthContext';
-import SearchBar from '../components/SearchBar';
-import { getHealthInformation } from '../services/deepSeekService';
-import './Symptoms.css';
+import { getHealthInformation, testAPIConnection } from '../services/deepSeekService';
+import './SymptomDetail.css';
 
-const Symptoms = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const location = useLocation();
+const SymptomDetail = () => {
+  const { symptomName } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const inputRef = useRef(null);
-  const [highlightIndex, setHighlightIndex] = useState(-1);
-  const [selectedItems, setSelectedItems] = useState([]); // {id, name, severity, duration}
+  const [selectedSymptom, setSelectedSymptom] = useState(null);
+  const [aiInsights, setAiInsights] = useState('');
+  const [loadingInsights, setLoadingInsights] = useState(false);
 
-  // Common symptoms database
+  // Common symptoms database (same as Symptoms.jsx)
   const commonSymptoms = [
     {
       id: 1,
@@ -408,93 +405,27 @@ const Symptoms = () => {
     }
   ];
 
-  // Symptom categories
-  const categories = [
-    { id: 'all', name: 'All Symptoms', icon: FaSearch },
-    { id: 'common', name: 'Common Symptoms', icon: FaThermometerHalf },
-    { id: 'digestive', name: 'Digestive', icon: GiMedicines },
-    { id: 'respiratory', name: 'Respiratory', icon: FaThermometerHalf },
-    { id: 'pain', name: 'Pain & Discomfort', icon: FaPills },
-    { id: 'cardiovascular', name: 'Cardiovascular', icon: FaPills },
-    { id: 'skin', name: 'Skin Conditions', icon: FaUser },
-    { id: 'sleep', name: 'Sleep Issues', icon: FaUser },
-  ];
-
-  // Filter symptoms by category
-  const getFilteredSymptoms = () => {
-    let filtered = commonSymptoms;
-    if (selectedCategory !== 'all') {
-      switch (selectedCategory) {
-        case 'common':
-          filtered = commonSymptoms.filter(s => ['Fever', 'Headache', 'Cough', 'Weakness', 'Nausea'].includes(s.name));
-          break;
-        case 'digestive':
-          filtered = commonSymptoms.filter(s => ['Stomach Pain', 'Nausea'].includes(s.name));
-          break;
-        case 'respiratory':
-          filtered = commonSymptoms.filter(s => s.name === 'Cough');
-          break;
-        case 'pain':
-          filtered = commonSymptoms.filter(s => ['Headache', 'Joint Pain', 'Stomach Pain'].includes(s.name));
-          break;
-        case 'cardiovascular':
-          filtered = commonSymptoms.filter(s => ['High Blood Pressure', 'Low Blood Pressure'].includes(s.name));
-          break;
-        case 'skin':
-          filtered = commonSymptoms.filter(s => ['Skin Rash'].includes(s.name));
-          break;
-        case 'sleep':
-          filtered = commonSymptoms.filter(s => ['Insomnia'].includes(s.name));
-          break;
-        default:
-          break;
-      }
-    }
-    return filtered;
-  };
-
-  // Filter symptoms by search query
-  const filteredSymptoms = getFilteredSymptoms().filter(symptom =>
-    symptom.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Keyboard navigation for suggestions
+  // Find the symptom by name
   useEffect(() => {
-    if (!showSuggestions) return;
-    setHighlightIndex(-1);
-  }, [showSuggestions, searchQuery, selectedCategory]);
-
-  const onKeyDown = (e) => {
-    if (!showSuggestions) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setHighlightIndex(prev => Math.min(prev + 1, filteredSymptoms.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlightIndex(prev => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter') {
-      if (highlightIndex >= 0 && highlightIndex < filteredSymptoms.length) {
-        handleSymptomSelect(filteredSymptoms[highlightIndex]);
-      } else if (filteredSymptoms.length > 0) {
-        handleSymptomSelect(filteredSymptoms[0]);
-      }
-    } else if (e.key === 'Escape') {
-      setShowSuggestions(false);
-    }
-  };
-
-  // Effect to handle URL search parameter
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const queryParam = params.get('q');
-    if (queryParam) {
-      setSearchQuery(queryParam);
-      // Save to search history if user is logged in
-      if (user) {
-        saveToSearchHistory(queryParam, 'symptom');
+    if (symptomName) {
+      const decodedName = decodeURIComponent(symptomName);
+      const symptom = commonSymptoms.find(s => 
+        s.name.toLowerCase() === decodedName.toLowerCase()
+      );
+      if (symptom) {
+        setSelectedSymptom(symptom);
+        // Save to search history if user is logged in
+        if (user) {
+          saveToSearchHistory(decodedName, 'symptom');
+        }
+        // Get AI insights
+        fetchAIInsights(symptom);
+      } else {
+        // If symptom not found, redirect to symptoms page
+        navigate('/symptoms');
       }
     }
-  }, [location.search]);
+  }, [symptomName, user, navigate]);
 
   // Save search to history
   const saveToSearchHistory = async (query, type) => {
@@ -523,98 +454,36 @@ const Symptoms = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const trimmedQuery = searchQuery.trim();
-    
-    if (trimmedQuery) {
-      navigate(`/symptoms?q=${encodeURIComponent(trimmedQuery)}`, { replace: true });
-      
-      // Save to search history if user is logged in
-      if (user) {
-        saveToSearchHistory(trimmedQuery, 'symptom');
-      }
-    }
-    setShowSuggestions(false);
-  };
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    setShowSuggestions(value.length > 0);
-    
-    // Update URL to remove query parameter when input is cleared
-    if (!value.trim()) {
-      navigate('/symptoms', { replace: true });
-    }
-  };
-
-  const handleSearchClear = () => {
-    setSearchQuery('');
-    setShowSuggestions(false);
-    navigate('/symptoms', { replace: true });
-  };
-
-  const addSelectedItem = (symptom) => {
-    if (selectedItems.find(s => s.id === symptom.id)) return;
-    setSelectedItems(prev => [...prev, { id: symptom.id, name: symptom.name, severity: 'moderate', duration: '1-3 days' }]);
-  };
-
-  const removeSelectedItem = (id) => {
-    setSelectedItems(prev => prev.filter(s => s.id !== id));
-  };
-
-  const updateSelectedItem = (id, field, value) => {
-    setSelectedItems(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
-  };
-
-  const handleSymptomSelect = async (symptom) => {
-    setSearchQuery(symptom.name);
-    setShowSuggestions(false);
-    addSelectedItem(symptom);
-    
-    // Navigate to symptom detail page
-    navigate(`/symptom/${encodeURIComponent(symptom.name)}`);
-    
-    if (user) {
-      saveToSearchHistory(symptom.name, 'symptom');
-    }
-  };
-
-  const analyzeSelected = async () => {
-    if (selectedItems.length === 0) return;
+  // Fetch AI insights
+  const fetchAIInsights = async (symptom) => {
     try {
-      const prompt = `Symptoms: ${selectedItems.map(s => `${s.name} (severity: ${s.severity}, duration: ${s.duration})`).join(', ')}. Provide likely causes, red flags, and next steps.`;
-      const insights = await getHealthInformation(prompt);
-      
-      // save diagnosis history if logged in
-      const token = localStorage.getItem('token');
-      if (user && token) {
-        await fetch('http://localhost:5001/api/diagnosis', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            userId: user?._id,
-            symptoms: selectedItems,
-            result: insights,
-            createdAt: new Date().toISOString()
-          })
-        });
-      }
-      
-      // Show insights in an alert for now (can be improved later)
-      alert(`AI Analysis:\n\n${insights}`);
-    } catch (e) {
-      console.error('Analyze failed', e);
-      alert('Sorry, I encountered an error while analyzing your symptoms. Please try again later.');
+      setLoadingInsights(true);
+      setAiInsights('');
+      console.log('Fetching AI insights for:', symptom.name);
+      const insights = await getHealthInformation(symptom.name);
+      console.log('AI insights received:', insights);
+      setAiInsights(insights);
+    } catch (error) {
+      console.error('Error getting AI insights:', error);
+      setAiInsights('Sorry, I encountered an error while fetching AI insights. Please try again later.');
+    } finally {
+      setLoadingInsights(false);
     }
   };
+
+  if (!selectedSymptom) {
+    return (
+      <div className="symptom-detail-page">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading symptom details...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="symptoms-page">
+    <div className="symptom-detail-page">
       {/* Navigation Bar */}
       <nav className="nav-bar">
         <div className="nav-logo">
@@ -623,197 +492,159 @@ const Symptoms = () => {
         </div>
         <div className="nav-links">
           <Link to="/"><FaHome /> Home</Link>
-          <Link to="/symptoms" className="active"><FaSearch /> Symptoms</Link>
+          <Link to="/symptoms"><FaSearch /> Symptoms</Link>
           <Link to="/library"><FaBook /> Medicine Library</Link>
           <Link to="/profile"><FaUser /> Profile</Link>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title">Symptom Checker</h1>
-          <p className="hero-subtitle">Discover comprehensive health information with AI-powered insights</p>
-          <div className="hero-stats">
-            <div className="stat-item">
-              <span className="stat-number">11+</span>
-              <span className="stat-label">Common Symptoms</span>
+      {/* Back Button */}
+      <div className="back-section">
+        <button className="back-button" onClick={() => navigate('/symptoms')}>
+          <FaArrowLeft />
+          Back to Symptoms
+        </button>
+      </div>
+
+      {/* Symptom Details */}
+      <section className="symptom-details">
+        <div className="symptom-card">
+          <div className="symptom-header">
+            <h1>{selectedSymptom.name}</h1>
+            <span className={`urgency-badge large ${selectedSymptom.urgencyLevel.toLowerCase().replace(' ', '-')}`}>
+              {selectedSymptom.urgencyLevel}
+            </span>
+          </div>
+          <p className="description">{selectedSymptom.description}</p>
+
+          <div className="details-grid">
+            <div className="detail-section">
+              <h3><BiCheckCircle /> Possible Causes</h3>
+              <ul className="causes-list">
+                {selectedSymptom.possibleCauses.map((cause, index) => (
+                  <li key={index}>
+                    <BiCheckCircle className="list-icon" />
+                    {cause}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="stat-item">
-              <span className="stat-number">2</span>
-              <span className="stat-label">Medicine Types</span>
+
+            <div className="detail-section">
+              <h3><BiCheckCircle /> Recommended Treatments</h3>
+              <ul className="treatment-list">
+                {selectedSymptom.treatments.map((treatment, index) => (
+                  <li key={index}>
+                    <BiCheckCircle className="list-icon" />
+                    {treatment}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="stat-item">
-              <span className="stat-number">AI</span>
-              <span className="stat-label">Powered Insights</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Search Section */}
-      <section className="search-section">
-        <div className="search-container">
-          <div className="search-header">
-            <h2>Find Your Symptoms</h2>
-            <p>Get instant information about symptoms, causes, and treatments</p>
-          </div>
-          <div className="search-box-container">
-            <SearchBar
-              placeholder="Type symptoms like 'fever', 'headache', 'cough'..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onSubmit={handleSearch}
-              onClear={handleSearchClear}
-              size="large"
-              inputRef={inputRef}
-              onKeyDown={onKeyDown}
-            />
-            {showSuggestions && (
-              <div className="suggestions-dropdown">
-                {filteredSymptoms.length === 0 ? (
-                  <div className="no-results">No results. Try different terms.</div>
-                ) : (
-                  filteredSymptoms.map((symptom, index) => (
-                    <div
-                      key={symptom.id}
-                      className={`suggestion-item ${index === highlightIndex ? 'highlight' : ''}`}
-                      onClick={() => handleSymptomSelect(symptom)}
-                      onMouseEnter={() => setHighlightIndex(index)}
-                    >
-                      <FaThermometerHalf className="suggestion-icon" />
-                      <div className="suggestion-content">
-                        <span className="suggestion-name">{symptom.name}</span>
-                        <span className="suggestion-desc">{symptom.description.substring(0, 60)}...</span>
-                      </div>
-                      <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase().replace(' ', '-')}`}>
-                        {symptom.urgencyLevel}
-                      </span>
-                      <button className="add-chip-btn" onClick={(e) => { e.stopPropagation(); addSelectedItem(symptom); }}>Add</button>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
           </div>
 
-          {/* Selected chips and controls */}
-          <div className="selected-chips">
-            {selectedItems.length === 0 ? (
-              <div className="empty-selected">No symptoms selected.</div>
-            ) : (
-              selectedItems.map(item => (
-                <div key={item.id} className="chip">
-                  <span className="chip-name">{item.name}</span>
-                  <select className="chip-select" value={item.severity} onChange={(e) => updateSelectedItem(item.id, 'severity', e.target.value)}>
-                    <option value="mild">Mild</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="severe">Severe</option>
-                  </select>
-                  <select className="chip-select" value={item.duration} onChange={(e) => updateSelectedItem(item.id, 'duration', e.target.value)}>
-                    <option value="hours">Hours</option>
-                    <option value="1-3 days">1-3 days</option>
-                    <option value=">3 days">More than 3 days</option>
-                    <option value=">1 week">More than 1 week</option>
-                  </select>
-                  <button className="chip-remove" onClick={() => removeSelectedItem(item.id)}><FaTimes /></button>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="analyze-row">
-            <button className="analyze-btn" onClick={analyzeSelected} disabled={selectedItems.length === 0}>
-              Analyze Selected
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="categories-section">
-        <div className="categories-container">
-          <div className="categories-header">
-            <h2>Browse by Category</h2>
-            <p>Explore symptoms organized by body systems and conditions</p>
-          </div>
-          <div className="category-grid">
-            {categories.map(category => (
-              <button
-                key={category.id}
-                className={`category-card ${selectedCategory === category.id ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                <div className="category-icon-wrapper">
-                  <category.icon className="category-icon" />
-                </div>
-                <span className="category-name">{category.name}</span>
-                <span className="category-count">
-                  {category.id === 'all' ? commonSymptoms.length : 
-                   getFilteredSymptoms().filter(s => {
-                     switch (category.id) {
-                       case 'common': return ['Fever', 'Headache', 'Cough', 'Weakness', 'Nausea'].includes(s.name);
-                       case 'digestive': return ['Stomach Pain', 'Nausea'].includes(s.name);
-                       case 'respiratory': return s.name === 'Cough';
-                       case 'pain': return ['Headache', 'Joint Pain', 'Stomach Pain'].includes(s.name);
-                       case 'cardiovascular': return ['High Blood Pressure', 'Low Blood Pressure'].includes(s.name);
-                       case 'skin': return ['Skin Rash'].includes(s.name);
-                       case 'sleep': return ['Insomnia'].includes(s.name);
-                       default: return false;
-                     }
-                   }).length}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Common Symptoms Grid */}
-      <section className="common-symptoms-section">
-          <div className="common-symptoms-container">
-            <div className="symptoms-header">
-              <h2>Common Symptoms and Conditions</h2>
-              <p>Click on any symptom to get detailed information and treatment options</p>
-            </div>
-            <div className="symptoms-grid">
-              {filteredSymptoms.map(symptom => (
-                <div
-                  key={symptom.id}
-                  className="symptom-card-preview"
-                  onClick={() => handleSymptomSelect(symptom)}
-                >
-                  <div className="symptom-card-header">
-                    <div className="symptom-icon">
-                      <FaThermometerHalf />
-                    </div>
-                    <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase().replace(' ', '-')}`}>
-                      {symptom.urgencyLevel}
-                    </span>
-                  </div>
-                  <div className="symptom-card-content">
-                    <h3>{symptom.name}</h3>
-                    <p>{symptom.description}</p>
-                    <div className="symptom-tags">
-                      {symptom.possibleCauses.slice(0, 2).map((cause, index) => (
-                        <span key={index} className="symptom-tag">{cause}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="symptom-card-footer">
-                    <button className="view-details-btn">
-                      <span>View Details</span>
-                      <BsArrowRight />
-                    </button>
-                  </div>
-                </div>
+          <div className="when-to-seek-help">
+            <h3><BiErrorCircle /> When to Seek Medical Help</h3>
+            <ul className="help-list">
+              {selectedSymptom.whenToSeekHelp.map((condition, index) => (
+                <li key={index}>
+                  <BiErrorCircle className="list-icon error" />
+                  {condition}
+                </li>
               ))}
+            </ul>
+          </div>
+
+          <div className="medicines-section">
+            <h3>Recommended Medicines</h3>
+            
+            <div className="medicine-types">
+              <div className="medicine-category allopathic">
+                <h4>
+                  <GiMedicines className="medicine-icon" />
+                  Allopathic Medicines
+                </h4>
+                <div className="medicine-list">
+                  {selectedSymptom.medicines.allopathic.map((medicine, index) => (
+                    <div key={index} className="medicine-item">
+                      <h5>{medicine.name}</h5>
+                      <p><strong>Dosage:</strong> {medicine.dosage}</p>
+                      <p><strong>Precautions:</strong> {medicine.precautions}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="medicine-category ayurvedic">
+                <h4>
+                  <FaPills className="medicine-icon" />
+                  Ayurvedic Remedies
+                </h4>
+                <div className="medicine-list">
+                  {selectedSymptom.medicines.ayurvedic.map((medicine, index) => (
+                    <div key={index} className="medicine-item">
+                      <h5>{medicine.name}</h5>
+                      <p><strong>Usage:</strong> {medicine.usage}</p>
+                      <p><strong>Benefits:</strong> {medicine.benefits}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </section>
 
+          {/* AI-powered insights section */}
+          <div className="ai-insights-section">
+            <div className="insights-header">
+              <h3>
+                <FaLightbulb className="insights-icon" />
+                AI Health Insights
+              </h3>
+              {!loadingInsights && !aiInsights && (
+                <div className="insights-actions">
+                  <button 
+                    className="retry-insights-btn"
+                    onClick={() => fetchAIInsights(selectedSymptom)}
+                  >
+                    Get AI Insights
+                  </button>
+                  <button 
+                    className="test-api-btn"
+                    onClick={async () => {
+                      const result = await testAPIConnection();
+                      alert(result.success ? 'API is working!' : `API Error: ${result.message}`);
+                    }}
+                  >
+                    Test API
+                  </button>
+                </div>
+              )}
+            </div>
+            {loadingInsights ? (
+              <div className="loading-insights">
+                <div className="loading-spinner"></div>
+                <p>Loading additional insights...</p>
+              </div>
+            ) : (
+              aiInsights ? (
+                <div className="insights-content">
+                  {aiInsights}
+                </div>
+              ) : (
+                <div className="no-insights">
+                  <p>Click "Get AI Insights" to fetch additional information about {selectedSymptom.name}.</p>
+                </div>
+              )
+            )}
+          </div>
+
+          <div className="disclaimer">
+            <p>Note: This information is for educational purposes only. Always consult with a healthcare professional for proper diagnosis and treatment.</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
 
-export default Symptoms; 
+export default SymptomDetail;

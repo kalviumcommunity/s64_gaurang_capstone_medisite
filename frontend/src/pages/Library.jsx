@@ -894,7 +894,7 @@ const Library = () => {
             <div className="ai-insights-section">
               <h3>
                 <FaLightbulb className="insights-icon" />
-                DeepSeek AI Insights
+               AI Insights
               </h3>
               {loadingInsights ? (
                 <div className="loading-insights">

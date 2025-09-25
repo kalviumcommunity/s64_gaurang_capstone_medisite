@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import { 
   FaSearch, FaPills, FaLeaf, FaExclamationTriangle, FaCheckCircle, FaLightbulb,
@@ -8,6 +8,7 @@ import {
   FaInfoCircle, FaHistory, FaGlobe, FaAward, FaHandsHelping
 } from 'react-icons/fa';
 import { getMedicineInformation } from '../services/deepSeekService';
+import SearchBar from '../components/SearchBar';
 import './Library.css';
 
 const Library = () => {
@@ -22,8 +23,11 @@ const Library = () => {
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [autoSearchPending, setAutoSearchPending] = useState(false);
+  const searchSectionRef = useRef(null);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Extended medicine data
   const medicines = {
@@ -91,6 +95,70 @@ const Library = () => {
         overdose: "GI upset, imbalance—seek care",
         precautions: ["Complete full course", "Take at regular intervals", "Report allergic reactions immediately"]
       }
+      ,
+      {
+        name: "Cetirizine",
+        description: "Second‑generation antihistamine for allergy relief",
+        type: "Antihistamines",
+        uses: ["Allergic rhinitis", "Sneezing", "Itchy/watery eyes", "Hives"],
+        indications: ["Seasonal allergies", "Chronic urticaria"],
+        mechanism: "Selective H1‑receptor antagonism reduces effects of histamine in peripheral tissues.",
+        sideEffects: ["Drowsiness (mild)", "Dry mouth", "Headache"],
+        dosage: "10 mg once daily (adults); 5 mg once daily (elderly/renal impairment)",
+        contraindications: ["Severe renal impairment without dose adjustment", "Hypersensitivity"],
+        interactions: ["CNS depressants (additive sedation)", "Alcohol (avoid)"],
+        availableForms: ["Tablet", "Syrup"],
+        brands: ["Cetzine", "Zyrtec"],
+        onset: "Within 1 hour",
+        duration: "24 hours",
+        pregnancyUse: "Generally considered low risk; use if clearly needed",
+        lactationUse: "Small amounts in milk; usually compatible",
+        storage: "Store below 25°C",
+        overdose: "Marked drowsiness; supportive care",
+        precautions: ["Avoid alcohol", "Adjust dose in renal impairment"]
+      },
+      {
+        name: "Metformin",
+        description: "First‑line oral antidiabetic agent (biguanide)",
+        type: "Antidiabetic",
+        uses: ["Type 2 diabetes", "Prediabetes (insulin resistance)"],
+        indications: ["Glycemic control in T2DM"],
+        mechanism: "Decreases hepatic glucose production and increases insulin sensitivity.",
+        sideEffects: ["GI upset", "Metallic taste", "Vitamin B12 deficiency (long term)"],
+        dosage: "500–1000 mg twice daily with meals; titrate to effect (max 2000 mg/day)",
+        contraindications: ["Severe renal impairment", "Metabolic acidosis", "Iodinated contrast (hold)"],
+        interactions: ["Iodinated contrast (risk lactic acidosis)", "Alcohol (avoid excessive)"] ,
+        availableForms: ["Tablet", "Extended‑release tablet"],
+        brands: ["Gluformin", "Glucophage"],
+        onset: "Within days",
+        duration: "Dose‑dependent, sustained with continued use",
+        pregnancyUse: "Often used; consult physician",
+        lactationUse: "Compatible with breastfeeding",
+        storage: "Store below 25°C",
+        overdose: "Lactic acidosis—seek emergency care",
+        precautions: ["Monitor renal function", "Take with food"]
+      },
+      {
+        name: "Pantoprazole",
+        description: "Proton pump inhibitor for acid‑related disorders",
+        type: "Gastrointestinal",
+        uses: ["GERD", "Acid reflux", "Peptic ulcer"],
+        indications: ["Erosive esophagitis", "H. pylori regimens (with antibiotics)"],
+        mechanism: "Irreversibly inhibits H+/K+‑ATPase in gastric parietal cells, suppressing acid secretion.",
+        sideEffects: ["Headache", "Abdominal pain", "Long‑term: B12/magnesium deficiency"],
+        dosage: "40 mg once daily for 4–8 weeks; maintenance 20–40 mg/day",
+        contraindications: ["Hypersensitivity"],
+        interactions: ["Drugs requiring acidic pH for absorption (e.g., ketoconazole)", "Clopidogrel (less effect than omeprazole)"] ,
+        availableForms: ["Tablet", "Injection"],
+        brands: ["Protonix", "Pantodac"],
+        onset: "Within 2–3 hours",
+        duration: ">24 hours",
+        pregnancyUse: "Considered relatively safe",
+        lactationUse: "Limited data; generally acceptable",
+        storage: "Store below 25°C",
+        overdose: "Supportive treatment",
+        precautions: ["Use lowest effective dose", "Check magnesium if long‑term"]
+      }
     ],
     ayurvedic: [
       {
@@ -155,19 +223,159 @@ const Library = () => {
         storage: "Store in a cool, dry place",
         overdose: "May cause nausea, cramps",
         precautions: ["Start with lower dose", "Not for pregnant women", "May affect thyroid function"]
+      },
+      {
+        name: "Arjuna",
+        description: "Cardio‑protective bark traditionally used for heart health",
+        type: "Heart Health",
+        uses: ["Blood pressure support", "Heart strength", "Cholesterol balance"],
+        indications: ["Mild hypertension", "General cardiac tonic"],
+        mechanism: "Tannins and flavonoids support myocardial function and endothelial tone.",
+        sideEffects: ["Mild gastric upset (rare)"] ,
+        dosage: "500 mg extract twice daily or as directed",
+        contraindications: ["Pregnancy (insufficient data)"] ,
+        interactions: ["Additive effect with antihypertensives (monitor)"] ,
+        availableForms: ["Capsule", "Powder"],
+        brands: ["Himalaya", "Dabur"],
+        onset: "2–4 weeks",
+        duration: "Improves with continued use",
+        pregnancyUse: "Avoid unless advised",
+        lactationUse: "Consult practitioner",
+        storage: "Keep in a cool, dry place",
+        overdose: "May cause hypotension",
+        precautions: ["Monitor BP if on medications"]
+      },
+      {
+        name: "Gokshura",
+        description: "Herb traditionally used for urinary and kidney support",
+        type: "Renal Health",
+        uses: ["Urinary tract health", "Male vitality"],
+        indications: ["Mild urinary discomfort", "General tonic"],
+        mechanism: "Saponins may support diuresis and androgen balance.",
+        sideEffects: ["GI upset (rare)"] ,
+        dosage: "250–500 mg extract twice daily",
+        contraindications: ["Pregnancy", "Prostate conditions (consult)"] ,
+        interactions: ["Additive with diuretics (monitor)"] ,
+        availableForms: ["Capsule", "Powder"],
+        brands: ["Himalaya", "Baidyanath"],
+        onset: "2–3 weeks",
+        duration: "Improves with use",
+        pregnancyUse: "Avoid",
+        lactationUse: "Consult practitioner",
+        storage: "Keep in a cool, dry place",
+        overdose: "May cause stomach upset",
+        precautions: ["Stay hydrated"]
+      },
+      {
+        name: "Neem",
+        description: "Traditional herb with antimicrobial and skin‑support benefits",
+        type: "Skin & Immunity",
+        uses: ["Skin health", "Acne", "Immune support"],
+        indications: ["Minor skin eruptions"] ,
+        mechanism: "Azadirachtin and nimbin have antimicrobial and anti‑inflammatory properties.",
+        sideEffects: ["GI upset", "Rare allergic reaction"],
+        dosage: "250–500 mg extract daily or topical paste as directed",
+        contraindications: ["Pregnancy (avoid)", "Children (high‑dose oral)"],
+        interactions: ["May potentiate hypoglycemics (monitor)"] ,
+        availableForms: ["Capsule", "Oil", "Topical paste"],
+        brands: ["Himalaya", "Patanjali"],
+        onset: "1–2 weeks",
+        duration: "Sustained with use",
+        pregnancyUse: "Avoid oral; topical with caution",
+        lactationUse: "Topical preferred",
+        storage: "Keep in a cool, dry place",
+        overdose: "GI upset",
+        precautions: ["Patch test for topical use"]
+      },
+      {
+        name: "Tulsi",
+        description: "Holy basil—adaptogen for respiratory and immune support",
+        type: "Respiratory & Immunity",
+        uses: ["Cough/cold relief", "Stress resilience", "Immunity"],
+        indications: ["Mild respiratory symptoms", "Stress"] ,
+        mechanism: "Eugenol‑rich leaves exhibit anti‑inflammatory and antioxidant effects.",
+        sideEffects: ["Mild gastric upset (rare)"] ,
+        dosage: "Tea from fresh leaves or 300–500 mg extract twice daily",
+        contraindications: ["Pregnancy (consult)"] ,
+        interactions: ["Additive effect with anticoagulants (monitor)"] ,
+        availableForms: ["Tea", "Capsule", "Liquid extract"],
+        brands: ["Organic India", "Himalaya"],
+        onset: "Within days",
+        duration: "Improves with use",
+        pregnancyUse: "Consult practitioner",
+        lactationUse: "Generally acceptable",
+        storage: "Keep in a cool, dry place",
+        overdose: "May cause nausea",
+        precautions: ["Stop if irritation occurs"]
+      },
+      {
+        name: "Giloy (Guduchi)",
+        description: "Rasayana herb used for immunity and fever management",
+        type: "Immunity & Fever",
+        uses: ["Immune support", "Fever management", "Detox"],
+        indications: ["Recurrent fever", "Low immunity"],
+        mechanism: "Tinospora cordifolia supports immune modulation and antioxidant defense.",
+        sideEffects: ["Mild gastric upset (rare)"] ,
+        dosage: "250–500 mg extract twice daily or as directed",
+        contraindications: ["Autoimmune disorders (consult physician)"] ,
+        interactions: ["Additive with hypoglycemics (monitor)"] ,
+        availableForms: ["Tablet", "Juice", "Powder"],
+        brands: ["Patanjali", "Kapiva"],
+        onset: "1–2 weeks",
+        duration: "Sustained with continued use",
+        pregnancyUse: "Avoid unless advised",
+        lactationUse: "Consult practitioner",
+        storage: "Store in a cool, dry place",
+        overdose: "May cause nausea",
+        precautions: ["Monitor blood glucose if diabetic"]
+      },
+      {
+        name: "Shatavari",
+        description: "Adaptogenic root traditionally used for women's health",
+        type: "Women's Health",
+        uses: ["Hormonal balance", "Lactation support", "Stress resilience"],
+        indications: ["Menopausal symptoms", "General tonic"] ,
+        mechanism: "Steroidal saponins may support estrogenic balance and adaptogenic effects.",
+        sideEffects: ["Mild GI upset (rare)"] ,
+        dosage: "500 mg extract 1–2 times daily",
+        contraindications: ["Hormone-sensitive conditions (consult)"] ,
+        interactions: ["Additive with diuretics (monitor)"] ,
+        availableForms: ["Capsule", "Powder"],
+        brands: ["Himalaya", "Organic India"],
+        onset: "2–4 weeks",
+        duration: "Improves with regular use",
+        pregnancyUse: "Consult practitioner",
+        lactationUse: "Traditionally used; consult practitioner",
+        storage: "Keep in a cool, dry place",
+        overdose: "May cause loose stools",
+        precautions: ["Start with lower dose"]
       }
     ]
   };
 
-  // Initialize from URL query param (?type=allopathic|ayurvedic)
+  // Initialize from URL query param (?type=allopathic|ayurvedic&q=Paracetamol)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('type');
+    const q = params.get('q');
     if (type === 'allopathic' || type === 'ayurvedic') {
       setMedicineType(type);
       setShowSearch(true);
     }
+    if (q) {
+      setSearchQuery(q);
+      setAutoSearchPending(true);
+    }
   }, [location.search]);
+
+  // Auto-run search if we have both type and query from URL
+  useEffect(() => {
+    if (autoSearchPending && medicineType && searchQuery) {
+      const fakeEvent = { preventDefault: () => {} };
+      handleSearch(fakeEvent);
+      setAutoSearchPending(false);
+    }
+  }, [autoSearchPending, medicineType, searchQuery]);
 
   // Build a flat list of searchable tokens for suggestions
   const searchableItems = useMemo(() => {
@@ -208,6 +416,12 @@ const Library = () => {
     setError(null);
     setSearchQuery('');
     setAiInsights('');
+    // Smooth scroll to search section after it appears
+    setTimeout(() => {
+      if (searchSectionRef.current) {
+        searchSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
   };
 
   const handleSearch = async (e) => {
@@ -217,16 +431,29 @@ const Library = () => {
     setAiInsights('');
 
     const searchTerm = searchQuery.toLowerCase().trim();
+    const synonyms = {
+      'acetaminophen': 'paracetamol',
+      'tylenol': 'paracetamol',
+      'advil': 'ibuprofen',
+    };
+    const normalized = synonyms[searchTerm] || searchTerm;
     if (!searchTerm) {
       setError('Please enter a medicine name');
       setLoading(false);
       return;
     }
 
-    const results = medicines[medicineType].filter(med => 
-      med.name.toLowerCase().includes(searchTerm) ||
-      med.type.toLowerCase().includes(searchTerm)
-    );
+    const results = medicines[medicineType].filter(med => {
+      const haystacks = [
+        med.name,
+        med.type,
+        med.description,
+        (med.uses || []).join(' '),
+        (med.indications || []).join(' '),
+        (med.brands || []).join(' ')
+      ].join(' ').toLowerCase();
+      return haystacks.includes(normalized);
+    });
 
     if (results.length > 0) {
       setResultsList(results);
@@ -305,8 +532,8 @@ const Library = () => {
                 </div>
               </div>
               <div className="hero-cta">
-                <button className="cta-primary">
-                  Start Your Journey
+                <button className="cta-primary" onClick={() => handleTypeSelect('allopathic')}>
+                  Medicine Library
                   <FaArrowRight />
                 </button>
                 <button className="cta-secondary">
@@ -348,7 +575,7 @@ const Library = () => {
                   <FaUsers className="stat-icon" />
                 </div>
                 <div className="stat-content">
-                  <span className="stat-number">50,000+</span>
+                  <span className="stat-number">VARIOUS</span>
                   <span className="stat-label">Users Helped</span>
                   <span className="stat-description">Worldwide</span>
                 </div>
@@ -358,7 +585,7 @@ const Library = () => {
                   <FaBookOpen className="stat-icon" />
                 </div>
                 <div className="stat-content">
-                  <span className="stat-number">500+</span>
+                  <span className="stat-number">MANY</span>
                   <span className="stat-label">Medicines</span>
                   <span className="stat-description">In Database</span>
                 </div>
@@ -669,32 +896,48 @@ const Library = () => {
         <p className="library-description">
           Search and learn about {medicineType === 'allopathic' ? 'Allopathic' : 'Ayurvedic'} medicines
         </p>
+        <div className="type-cards">
+          <button
+            className={`type-card ${medicineType === 'ayurvedic' ? 'active' : ''}`}
+            onClick={() => navigate('/library?type=ayurvedic')}
+          >
+            <div className="type-card-icon ayurvedic"><FaSeedling /></div>
+            <h3>Ayurvedic</h3>
+            <p className="type-card-sub">Traditional healing</p>
+            <div className="type-card-stats">
+              <span className="stat-pill">5000+ years</span>
+              <span className="stat-pill">300+ herbs</span>
+            </div>
+          </button>
+
+          <button
+            className={`type-card ${medicineType === 'allopathic' ? 'active' : ''}`}
+            onClick={() => navigate('/library?type=allopathic')}
+          >
+            <div className="type-card-icon allopathic"><FaStethoscope /></div>
+            <h3>Allopathic</h3>
+            <p className="type-card-sub">Modern medicine</p>
+            <div className="type-card-stats">
+              <span className="stat-pill">1000+ medicines</span>
+              <span className="stat-pill">99% accuracy</span>
+            </div>
+          </button>
+        </div>
         
-        <div className="search-section">
-          <form onSubmit={handleSearch} className="search-bar enhanced">
-            <div className="search-input-wrapper">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
+        <div className="search-section" ref={searchSectionRef}>
+          <div className="search-box-container">
+            <SearchBar
                 placeholder={`Search ${medicineType} medicines...`}
                 value={searchQuery}
                 onChange={handleInputChange}
-                onFocus={() => updateSuggestions(searchQuery)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  className="clear-input"
-                  onClick={() => {
+              onSubmit={handleSearch}
+              onClear={() => {
                     setSearchQuery('');
                     setSuggestions([]);
                     setShowSuggestions(false);
                   }}
-                  aria-label="Clear"
-                >
-                  ×
-                </button>
-              )}
+              size="large"
+            />
               {showSuggestions && suggestions.length > 0 && (
                 <div className="suggestions-dropdown">
                   {suggestions.map((s) => (
@@ -711,10 +954,6 @@ const Library = () => {
                 </div>
               )}
             </div>
-            <button type="submit" className="search-button primary">
-              Search
-            </button>
-          </form>
         </div>
 
         <button 
@@ -762,15 +1001,40 @@ const Library = () => {
           </div>
         )}
 
+        {/* Featured medicines when there are no search results yet */}
+        {resultsList && resultsList.length === 0 && (
+          <div className="library-results-grid">
+            {medicines[medicineType].slice(0, 9).map((med) => (
+              <button
+                key={med.name}
+                className={`result-card ${medicineData && medicineData.name === med.name ? 'active' : ''}`}
+                onClick={() => {
+                  setMedicineData(med);
+                  setAiInsights('');
+                  setLoadingInsights(true);
+                  getMedicineInformation(med.name)
+                    .then((insights) => setAiInsights(insights))
+                    .catch(() => {})
+                    .finally(() => setLoadingInsights(false));
+                }}
+              >
+                <div className="result-card-title">{med.name}</div>
+                <div className="result-card-type">{med.type}</div>
+                <div className="result-card-desc">{med.description}</div>
+              </button>
+            ))}
+          </div>
+        )}
+
         {medicineData && (
           <div className="medicine-card">
             <div className="medicine-header">
-              <h2>{medicineData.name}</h2>
+            <h2>{medicineData.name}</h2>
               <span className="medicine-type chip">{medicineData.type}</span>
             </div>
             <p className="medicine-description">{medicineData.description}</p>
             
-            <div className="medicine-details">
+                <div className="medicine-details">
               <div className="detail-section uses-section">
                 <h3>Uses</h3>
                 <ul>
@@ -795,7 +1059,7 @@ const Library = () => {
               </div>
 
               {medicineData.indications && (
-                <div className="detail-section">
+              <div className="detail-section">
                   <h3>Indications</h3>
                   <ul>
                     {medicineData.indications.map((i, idx) => (
@@ -921,30 +1185,7 @@ const Library = () => {
           </div>
         )}
 
-        <div className="sample-searches">
-          <p>Popular searches in {medicineType === 'allopathic' ? 'Allopathic' : 'Ayurvedic'} medicine:</p>
-          <div className="sample-tags">
-            {medicines[medicineType].map(med => (
-              <button 
-                key={med.name}
-                onClick={() => {
-                  setSearchQuery(med.name);
-                  setMedicineData(med);
-                  // Get AI insights for the selected medicine
-                  setLoadingInsights(true);
-                  setAiInsights('');
-                  getMedicineInformation(med.name)
-                    .then(insights => setAiInsights(insights))
-                    .catch(error => console.error('Error getting AI insights:', error))
-                    .finally(() => setLoadingInsights(false));
-                }}
-                className="sample-tag"
-              >
-                {med.name}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Popular searches section removed as requested */}
       </div>
     </div>
   );

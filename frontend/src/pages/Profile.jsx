@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { FaHome, FaSearch, FaBook, FaRobot, FaUser, FaCamera, FaSpinner, 
+import { FaHome, FaSearch, FaBook, FaUser, FaCamera, FaSpinner, 
          FaWeight, FaRuler, FaCalendarAlt, FaVenusMars, FaHeartbeat } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 // Removed SearchHistory tabs to simplify the profile page

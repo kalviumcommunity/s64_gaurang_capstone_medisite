@@ -5,7 +5,7 @@ import doctorBg from '../assets/doctor-bg.jpg';
 import SearchBar from '../components/SearchBar';
 
 // Import icons (you'll need to install react-icons package)
-import { FaHome, FaSearch, FaBook, FaRobot, FaUser, FaHeart, FaShieldAlt, FaUsers, FaGlobe, FaBookOpen } from 'react-icons/fa';
+import { FaHome, FaSearch, FaBook, FaUser, FaHeart, FaShieldAlt, FaUsers, FaGlobe, FaBookOpen, FaComments } from 'react-icons/fa';
 import { BsArrowRight } from 'react-icons/bs';
 import { GiMedicines, GiHerbsBundle } from 'react-icons/gi';
 import { MdOutlineHealthAndSafety } from 'react-icons/md';
@@ -19,6 +19,16 @@ const Landing = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/symptoms?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handlePopularClick = (term) => {
+    setSearchQuery(term);
+    const normalized = term.toLowerCase();
+    if (['fever', 'headache', 'cough'].includes(normalized)) {
+      navigate(`/symptom/${encodeURIComponent(term)}`);
+    } else {
+      navigate(`/symptoms?q=${encodeURIComponent(term)}`);
     }
   };
 
@@ -46,7 +56,8 @@ const Landing = () => {
   };
 
   const handleViewDetails = (medicineName) => {
-    navigate(`/library/${encodeURIComponent(medicineName)}`);
+    // Open Library in allopathic search mode and prefill the query
+    navigate(`/library?type=allopathic&q=${encodeURIComponent(medicineName)}`);
   };
 
   const medicines = [
@@ -79,7 +90,6 @@ const Landing = () => {
           <Link to="/"><FaHome /> Home</Link>
           <Link to="/symptoms"><FaSearch /> Symptoms</Link>
           <Link to="/library"><FaBook /> Medicine Library</Link>
-          <Link to="/chat"><FaRobot /> Chat Assistant</Link>
           <Link to="/profile"><FaUser /> Profile</Link>
         </div>
       </nav>
@@ -128,10 +138,10 @@ const Landing = () => {
               <div className="search-suggestions">
                 <span className="suggestion-label">Popular searches:</span>
                 <div className="suggestion-tags">
-                  <button className="suggestion-tag">Headache</button>
-                  <button className="suggestion-tag">Fever</button>
-                  <button className="suggestion-tag">Cough</button>
-                  <button className="suggestion-tag">Pain Relief</button>
+                  <button className="suggestion-tag" onClick={() => handlePopularClick('Headache')}>Headache</button>
+                  <button className="suggestion-tag" onClick={() => handlePopularClick('Fever')}>Fever</button>
+                  <button className="suggestion-tag" onClick={() => handlePopularClick('Cough')}>Cough</button>
+                  <button className="suggestion-tag" onClick={() => handlePopularClick('Pain Relief')}>Pain Relief</button>
                 </div>
               </div>
             </div>
@@ -181,7 +191,7 @@ const Landing = () => {
 
             <div className="feature-card">
               <div className="feature-icon">
-                <FaRobot />
+                <FaComments />
               </div>
               <h3>AI Health Assistant</h3>
               <p>Get instant answers to your health questions with our advanced AI-powered chat assistant.</p>
@@ -235,7 +245,7 @@ const Landing = () => {
               ))}
             </div>
             <div className="medicine-cta">
-              <button className="explore-library-btn" onClick={() => navigate('/library')}>
+              <button className="explore-library-btn" onClick={() => navigate('/library?type=allopathic')}>
                 Explore Full Library
                 <BsArrowRight />
               </button>

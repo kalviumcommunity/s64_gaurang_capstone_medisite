@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Landing.css';
-import doctorBg from '../assets/doctor-bg.jpg';
 import SearchBar from '../components/SearchBar';
 
 // Import icons (you'll need to install react-icons package)

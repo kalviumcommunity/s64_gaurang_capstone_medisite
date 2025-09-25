@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import { 
@@ -896,33 +897,6 @@ const Library = () => {
         <p className="library-description">
           Search and learn about {medicineType === 'allopathic' ? 'Allopathic' : 'Ayurvedic'} medicines
         </p>
-        <div className="type-cards">
-          <button
-            className={`type-card ${medicineType === 'ayurvedic' ? 'active' : ''}`}
-            onClick={() => navigate('/library?type=ayurvedic')}
-          >
-            <div className="type-card-icon ayurvedic"><FaSeedling /></div>
-            <h3>Ayurvedic</h3>
-            <p className="type-card-sub">Traditional healing</p>
-            <div className="type-card-stats">
-              <span className="stat-pill">5000+ years</span>
-              <span className="stat-pill">300+ herbs</span>
-            </div>
-          </button>
-
-          <button
-            className={`type-card ${medicineType === 'allopathic' ? 'active' : ''}`}
-            onClick={() => navigate('/library?type=allopathic')}
-          >
-            <div className="type-card-icon allopathic"><FaStethoscope /></div>
-            <h3>Allopathic</h3>
-            <p className="type-card-sub">Modern medicine</p>
-            <div className="type-card-stats">
-              <span className="stat-pill">1000+ medicines</span>
-              <span className="stat-pill">99% accuracy</span>
-            </div>
-          </button>
-        </div>
         
         <div className="search-section" ref={searchSectionRef}>
           <div className="search-box-container">
@@ -954,6 +928,35 @@ const Library = () => {
                 </div>
               )}
             </div>
+        </div>
+
+        {/* Move type selection below the search for better visual hierarchy */}
+        <div className="type-cards">
+          <button
+            className={`type-card ${medicineType === 'ayurvedic' ? 'active' : ''}`}
+            onClick={() => navigate('/library?type=ayurvedic')}
+          >
+            <div className="type-card-icon ayurvedic"><FaSeedling /></div>
+            <h3>Ayurvedic</h3>
+            <p className="type-card-sub">Traditional healing</p>
+            <div className="type-card-stats">
+              <span className="stat-pill">5000+ years</span>
+              <span className="stat-pill">300+ herbs</span>
+            </div>
+          </button>
+
+          <button
+            className={`type-card ${medicineType === 'allopathic' ? 'active' : ''}`}
+            onClick={() => navigate('/library?type=allopathic')}
+          >
+            <div className="type-card-icon allopathic"><FaStethoscope /></div>
+            <h3>Allopathic</h3>
+            <p className="type-card-sub">Modern medicine</p>
+            <div className="type-card-stats">
+              <span className="stat-pill">1000+ medicines</span>
+              <span className="stat-pill">99% accuracy</span>
+            </div>
+          </button>
         </div>
 
         <button 
@@ -1167,9 +1170,9 @@ const Library = () => {
                 </div>
               ) : (
                 aiInsights ? (
-                  <div className="insights-content">
+                  <ReactMarkdown className="insights-content">
                     {aiInsights}
-                  </div>
+                  </ReactMarkdown>
                 ) : (
                   <div className="no-insights">
                     <p>Additional AI-powered information is currently unavailable.</p>

@@ -504,8 +504,8 @@
 }
 
 .search-section {
-  max-width: 800px;
-  margin: 1rem auto 2.5rem;
+  max-width: 720px;
+  margin: 0.75rem auto 1.5rem;
 }
 
 /* Use the same container class as Symptoms SearchBar */
@@ -837,8 +837,8 @@
   }
 
   .search-section {
-    max-width: 700px;
-    margin: 0.5rem auto 2rem;
+    max-width: 660px;
+    margin: 0.5rem auto 1.5rem;
   }
 
   .library-results-grid {

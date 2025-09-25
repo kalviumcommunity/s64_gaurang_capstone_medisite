@@ -1,20 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { FaHome, FaSearch, FaBook, FaRobot, FaUser, FaCamera, FaSpinner, 
          FaWeight, FaRuler, FaCalendarAlt, FaVenusMars, FaHeartbeat } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
-import SearchHistory from '../components/SearchHistory';
+// Removed SearchHistory tabs to simplify the profile page
 import './Profile.css';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+
+  const BACKEND_BASE_URL = import.meta?.env?.VITE_BACKEND_URL || 'http://localhost:5001';
 
   useEffect(() => {
     fetchUserData();
@@ -25,17 +28,34 @@ const Profile = () => {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/users/profile', {
+      const response = await fetch(`${BACKEND_BASE_URL}/api/users/profile`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       if (!response.ok) {
-        throw new Error('Failed to fetch user data');
+        // Try to parse server error for better feedback
+        let message = 'Failed to fetch user data';
+        try {
+          const err = await response.json();
+          message = err.message || message;
+        } catch {}
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => navigate('/login'), 0);
+        }
+        throw new Error(message);
       }
       const data = await response.json();
-      setUserData(data);
-      setEditedData(data);
+      const resolvedPhoto = data?.profilePhoto
+        ? (data.profilePhoto.startsWith('http')
+            ? data.profilePhoto
+            : `${BACKEND_BASE_URL}${data.profilePhoto}`)
+        : '';
+      const resolvedData = { ...data, profilePhoto: resolvedPhoto };
+      setUserData(resolvedData);
+      setEditedData(resolvedData);
     } catch (error) {
       setError(error.message);
       console.error('Error fetching user data:', error);
@@ -69,7 +89,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/users/profile/photo', {
+      const response = await fetch(`${BACKEND_BASE_URL}/api/users/profile/photo`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -82,13 +102,18 @@ const Profile = () => {
       }
 
       const data = await response.json();
-      
-      // Create a local URL for immediate display
+      // Create a local URL for immediate display and also prepare server URL for persistence
       const localUrl = URL.createObjectURL(file);
-      setUserData(prev => ({ 
-        ...prev, 
-        profilePhoto: localUrl,
-        serverPhotoUrl: data.profilePhoto // Store server URL separately
+      const serverUrl = data?.profilePhoto
+        ? (data.profilePhoto.startsWith('http')
+            ? data.profilePhoto
+            : `${BACKEND_BASE_URL}${data.profilePhoto}`)
+        : '';
+      setUserData(prev => ({
+        ...prev,
+        // Prefer server URL so it persists across reload; local URL is instant fallback
+        profilePhoto: serverUrl || localUrl,
+        serverPhotoUrl: serverUrl
       }));
       
       setUploadProgress(0);
@@ -119,7 +144,7 @@ const Profile = () => {
   const handleSaveChanges = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/users/profile', {
+      const response = await fetch(`${BACKEND_BASE_URL}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -127,10 +152,16 @@ const Profile = () => {
         },
         body: JSON.stringify(editedData)
       });
+      if (!response.ok) {
+        let message = 'Failed to update profile';
+        try { const err = await response.json(); message = err.message || message; } catch {}
+        throw new Error(message);
+      }
       const data = await response.json();
       setUserData(data);
       setIsEditing(false);
     } catch (error) {
+      setError(error.message);
       console.error('Error updating profile:', error);
     }
   };
@@ -330,9 +361,8 @@ const Profile = () => {
       );
     }
 
-    switch (activeTab) {
-      case 'overview':
-        return (
+    // Single profile view (overview only)
+    return (
           <div className="overview-section">
             <div className="profile-header">
               <div className="profile-photo-section">
@@ -346,9 +376,9 @@ const Profile = () => {
                     </div>
                   )}
                   {userData?.profilePhoto ? (
-                    <img 
-                      src={userData.profilePhoto} 
-                      alt="Profile" 
+                    <img
+                      src={userData.profilePhoto}
+                      alt="Profile"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = userData.serverPhotoUrl || '/default-avatar.png';
@@ -380,6 +410,10 @@ const Profile = () => {
               <div className="profile-info">
                 <h2>{userData?.name || 'User'}</h2>
                 <p className="email">{userData?.email}</p>
+                <div className="badges">
+                  <span className="badge pink">Health Guide</span>
+                  <span className="badge teal">Member</span>
+                </div>
                 <button 
                   className={`edit-button ${isEditing ? 'active' : ''}`} 
                   onClick={handleEditToggle}
@@ -482,44 +516,13 @@ const Profile = () => {
             )}
           </div>
         );
-      case 'search-history':
-        return <SearchHistory />;
-      case 'health-metrics':
-        return (
-          <div className="health-metrics-section">
-            <h3>Detailed Health Metrics</h3>
-            {/* Add more detailed health metrics here */}
-          </div>
-        );
-      default:
-        return null;
-    }
   };
 
   return (
     <div className="profile-page">
       <Navigation />
       <div className="profile-content">
-        <div className="tab-navigation">
-          <button
-            className={activeTab === 'overview' ? 'active' : ''}
-            onClick={() => setActiveTab('overview')}
-          >
-            Overview
-          </button>
-          <button
-            className={activeTab === 'search-history' ? 'active' : ''}
-            onClick={() => setActiveTab('search-history')}
-          >
-            Search History
-          </button>
-          <button
-            className={activeTab === 'health-metrics' ? 'active' : ''}
-            onClick={() => setActiveTab('health-metrics')}
-          >
-            Health Metrics
-          </button>
-        </div>
+        {/* Tabs removed to simplify the profile page */}
         {renderTabContent()}
       </div>
     </div>

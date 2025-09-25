@@ -1,28 +1,36 @@
+.metrics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
 .profile-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  background: radial-gradient(1200px 600px at 10% -20%, #dbeafe 0%, rgba(219,234,254,0) 70%),
+              radial-gradient(1000px 500px at 110% 10%, #f5d0fe 0%, rgba(245,208,254,0) 60%),
+              linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
   padding: 80px 20px 20px;
 }
 
 .profile-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 30px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, #ffffff 100%);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(30, 64, 175, 0.15);
+  border: 1px solid rgba(99,102,241,0.15);
 }
 
 .tab-navigation {
   display: flex;
   gap: 10px;
   margin-bottom: 30px;
-  border-bottom: 2px solid #e4e9f2;
-  padding-bottom: 10px;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .tab-navigation button {
-  padding: 12px 24px;
+  padding: 10px 18px;
   border: none;
   background: none;
   color: #64748b;
@@ -43,7 +51,7 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: #2563eb;
+  background: linear-gradient(90deg, #2563eb, #7c3aed, #06b6d4);
   border-radius: 3px;
 }
 
@@ -51,7 +59,7 @@
   display: flex;
   align-items: flex-start;
   gap: 40px;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   padding: 20px;
   background: linear-gradient(to right, #f8fafc, #eef2ff);
   border-radius: 16px;
@@ -69,9 +77,13 @@
   overflow: hidden;
   position: relative;
   background: #f1f5f9;
-  border: 4px solid white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 6px solid transparent;
+  box-shadow: 0 12px 30px rgba(99,102,241,0.25);
   transition: transform 0.3s ease;
+  background-image: linear-gradient(white, white),
+                    conic-gradient(from 180deg, #2563eb, #7c3aed, #06b6d4, #22c55e, #2563eb);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
 
 .profile-photo:hover {
@@ -107,7 +119,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
   border: 3px solid white;
   color: white;
   cursor: pointer;
@@ -115,13 +127,13 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
   font-size: 1.2rem;
 }
 
 .photo-upload-btn:hover {
   transform: scale(1.1);
-  background: #1d4ed8;
+  filter: brightness(1.05);
 }
 
 .profile-info {
@@ -149,46 +161,45 @@
 .edit-button {
   padding: 10px 20px;
   border-radius: 8px;
-  border: 2px solid #2563eb;
-  background: transparent;
-  color: #2563eb;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  color: white;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.25);
 }
 
 .edit-button:hover {
-  background: #2563eb;
-  color: white;
+  transform: translateY(-1px);
 }
 
 .edit-button.active {
-  background: #dc2626;
-  border-color: #dc2626;
-  color: white;
+  background: linear-gradient(135deg, #ef4444, #f97316);
 }
 
 .health-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin: 30px 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+  align-items: start;
 }
 
 .health-score-container {
-  background: white;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 20px;
-  padding: 30px;
+  padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 40px;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
   align-items: start;
 }
 
 .health-score-circle {
-  width: 200px;
-  height: 200px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   background: conic-gradient(
     var(--score-color) calc(var(--percentage) * 1%),
@@ -199,13 +210,14 @@
   justify-content: center;
   position: relative;
   margin: 0 auto;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.25);
 }
 
 .health-score-circle::before {
   content: '';
   position: absolute;
-  width: 170px;
-  height: 170px;
+  width: 135px;
+  height: 135px;
   border-radius: 50%;
   background: white;
 }
@@ -216,7 +228,7 @@
 }
 
 .health-score-value {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: bold;
   color: var(--score-color);
   line-height: 1;
@@ -224,7 +236,7 @@
 }
 
 .health-score-category {
-  font-size: 18px;
+  font-size: 14px;
   color: #64748b;
   font-weight: 500;
 }
@@ -234,15 +246,15 @@
 }
 
 .health-score-details h3 {
-  font-size: 20px;
+  font-size: 18px;
   color: #1e293b;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   font-weight: 600;
 }
 
 .score-metrics {
   display: grid;
-  gap: 20px;
+  gap: 12px;
 }
 
 .score-metric {
@@ -305,9 +317,9 @@
 }
 
 .metric-card {
-  background: white;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 16px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid #e2e8f0;
@@ -319,21 +331,21 @@
 }
 
 .metric-icon {
-  font-size: 24px;
-  color: #2563eb;
-  margin-bottom: 16px;
+  font-size: 20px;
+  color: #7c3aed;
+  margin-bottom: 12px;
 }
 
 .metric-content h4 {
   color: #1e293b;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .metric-content p {
   color: #64748b;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -396,19 +408,44 @@
 
 .save-button {
   padding: 12px 30px;
-  background: #2563eb;
+  background: linear-gradient(135deg, #22c55e, #06b6d4);
   color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 12px 20px rgba(6, 182, 212, 0.25);
 }
 
 .save-button:hover {
-  background: #1d4ed8;
   transform: translateY(-1px);
 }
+
+/* Badges below email */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 16px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #0f172a;
+  background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(124,58,237,0.15));
+  border: 1px solid rgba(99,102,241,0.25);
+}
+
+.badge.pink { background: linear-gradient(135deg, rgba(244,114,182,0.2), rgba(59,130,246,0.15)); }
+.badge.teal { background: linear-gradient(135deg, rgba(45,212,191,0.2), rgba(59,130,246,0.15)); }
 
 .loading-container,
 .error-container {
@@ -466,7 +503,9 @@
 
   .health-metrics-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+  }
+  .health-score-container {
+    grid-template-columns: 1fr;
   }
 
   .metric-card {
@@ -477,15 +516,9 @@
     padding: 20px;
   }
 
-  .health-score-circle {
-    width: 150px;
-    height: 150px;
-  }
+  .health-score-circle { width: 140px; height: 140px; }
 
-  .health-score-circle::before {
-    width: 125px;
-    height: 125px;
-  }
+  .health-score-circle::before { width: 115px; height: 115px; }
 
   .health-score-value {
     font-size: 30px;

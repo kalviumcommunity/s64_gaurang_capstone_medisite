@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaSearch, FaTimes, FaThermometerHalf, FaPills, FaHome, FaBook, FaRobot, FaUser, FaLightbulb } from 'react-icons/fa';
 import { GiMedicines } from 'react-icons/gi';
@@ -19,6 +19,9 @@ const Symptoms = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const inputRef = useRef(null);
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [selectedItems, setSelectedItems] = useState([]); // {id, name, severity, duration}
 
   // Common symptoms database
   const commonSymptoms = [
@@ -459,6 +462,31 @@ const Symptoms = () => {
     symptom.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Keyboard navigation for suggestions
+  useEffect(() => {
+    if (!showSuggestions) return;
+    setHighlightIndex(-1);
+  }, [showSuggestions, searchQuery, selectedCategory]);
+
+  const onKeyDown = (e) => {
+    if (!showSuggestions) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightIndex(prev => Math.min(prev + 1, filteredSymptoms.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightIndex(prev => Math.max(prev - 1, 0));
+    } else if (e.key === 'Enter') {
+      if (highlightIndex >= 0 && highlightIndex < filteredSymptoms.length) {
+        handleSymptomSelect(filteredSymptoms[highlightIndex]);
+      } else if (filteredSymptoms.length > 0) {
+        handleSymptomSelect(filteredSymptoms[0]);
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+
   // Effect to handle URL search parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -511,7 +539,6 @@ const Symptoms = () => {
     const trimmedQuery = searchQuery.trim();
     
     if (trimmedQuery) {
-      // Update URL with search query
       navigate(`/symptoms?q=${encodeURIComponent(trimmedQuery)}`, { replace: true });
       
     if (filteredSymptoms.length > 0) {
@@ -545,13 +572,25 @@ const Symptoms = () => {
     navigate('/symptoms', { replace: true });
   };
 
+  const addSelectedItem = (symptom) => {
+    if (selectedItems.find(s => s.id === symptom.id)) return;
+    setSelectedItems(prev => [...prev, { id: symptom.id, name: symptom.name, severity: 'moderate', duration: '1-3 days' }]);
+  };
+
+  const removeSelectedItem = (id) => {
+    setSelectedItems(prev => prev.filter(s => s.id !== id));
+  };
+
+  const updateSelectedItem = (id, field, value) => {
+    setSelectedItems(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  };
+
   const handleSymptomSelect = async (symptom) => {
     setSearchQuery(symptom.name);
     setSelectedSymptom(symptom);
     setShowSuggestions(false);
-    // Update URL with selected symptom
+    addSelectedItem(symptom);
     navigate(`/symptoms?q=${encodeURIComponent(symptom.name)}`, { replace: true });
-    // Save to search history if user is logged in
     if (user) {
       saveToSearchHistory(symptom.name, 'symptom');
     }
@@ -564,6 +603,38 @@ const Symptoms = () => {
       setAiInsights(insights);
     } catch (error) {
       console.error('Error getting AI insights:', error);
+    } finally {
+      setLoadingInsights(false);
+    }
+  };
+
+  const analyzeSelected = async () => {
+    if (selectedItems.length === 0) return;
+    try {
+      setLoadingInsights(true);
+      setAiInsights('');
+      const prompt = `Symptoms: ${selectedItems.map(s => `${s.name} (severity: ${s.severity}, duration: ${s.duration})`).join(', ')}. Provide likely causes, red flags, and next steps.`;
+      const insights = await getHealthInformation(prompt);
+      setAiInsights(insights);
+      // save diagnosis history if logged in
+      const token = localStorage.getItem('token');
+      if (user && token) {
+        await fetch('http://localhost:5001/api/diagnosis', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            userId: user?._id,
+            symptoms: selectedItems,
+            result: insights,
+            createdAt: new Date().toISOString()
+          })
+        });
+      }
+    } catch (e) {
+      console.error('Analyze failed', e);
     } finally {
       setLoadingInsights(false);
     }
@@ -586,40 +657,103 @@ const Symptoms = () => {
         </div>
       </nav>
 
-      <header className="symptoms-header">
-        <h1>Symptom Checker</h1>
-        <p>Search for your symptoms to find possible causes and treatments in both allopathic and ayurvedic medicines</p>
-      </header>
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <h1 className="hero-title">Symptom Checker</h1>
+          <p className="hero-subtitle">Discover comprehensive health information with AI-powered insights</p>
+          <div className="hero-stats">
+            <div className="stat-item">
+              <span className="stat-number">11+</span>
+              <span className="stat-label">Common Symptoms</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">2</span>
+              <span className="stat-label">Medicine Types</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">AI</span>
+              <span className="stat-label">Powered Insights</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      {/* Search Section */}
       <section className="search-section">
         <div className="search-container">
-          <h2>Search symptoms or medical conditions</h2>
+          <div className="search-header">
+            <h2>Find Your Symptoms</h2>
+            <p>Get instant information about symptoms, causes, and treatments</p>
+          </div>
           <div className="search-box-container">
             <SearchBar
-                placeholder="Enter symptoms or conditions..."
-                value={searchQuery}
+              placeholder="Type symptoms like 'fever', 'headache', 'cough'..."
+              value={searchQuery}
               onChange={handleSearchChange}
               onSubmit={handleSearch}
               onClear={handleSearchClear}
               size="large"
+              inputRef={inputRef}
+              onKeyDown={onKeyDown}
             />
-          {showSuggestions && (
-            <div className="suggestions-dropdown">
-              {filteredSymptoms.map(symptom => (
-                <div
-                  key={symptom.id}
-                  className="suggestion-item"
-                  onClick={() => handleSymptomSelect(symptom)}
-                >
-                  <FaThermometerHalf className="suggestion-icon" />
-                    <span>{symptom.name}</span>
-                    <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase()}`}>
-                      {symptom.urgencyLevel}
-                    </span>
+            {showSuggestions && (
+              <div className="suggestions-dropdown">
+                {filteredSymptoms.length === 0 ? (
+                  <div className="no-results">No results. Try different terms.</div>
+                ) : (
+                  filteredSymptoms.map((symptom, index) => (
+                    <div
+                      key={symptom.id}
+                      className={`suggestion-item ${index === highlightIndex ? 'highlight' : ''}`}
+                      onClick={() => handleSymptomSelect(symptom)}
+                      onMouseEnter={() => setHighlightIndex(index)}
+                    >
+                      <FaThermometerHalf className="suggestion-icon" />
+                      <div className="suggestion-content">
+                        <span className="suggestion-name">{symptom.name}</span>
+                        <span className="suggestion-desc">{symptom.description.substring(0, 60)}...</span>
+                      </div>
+                      <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase().replace(' ', '-')}`}>
+                        {symptom.urgencyLevel}
+                      </span>
+                      <button className="add-chip-btn" onClick={(e) => { e.stopPropagation(); addSelectedItem(symptom); }}>Add</button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Selected chips and controls */}
+          <div className="selected-chips">
+            {selectedItems.length === 0 ? (
+              <div className="empty-selected">No symptoms selected.</div>
+            ) : (
+              selectedItems.map(item => (
+                <div key={item.id} className="chip">
+                  <span className="chip-name">{item.name}</span>
+                  <select className="chip-select" value={item.severity} onChange={(e) => updateSelectedItem(item.id, 'severity', e.target.value)}>
+                    <option value="mild">Mild</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="severe">Severe</option>
+                  </select>
+                  <select className="chip-select" value={item.duration} onChange={(e) => updateSelectedItem(item.id, 'duration', e.target.value)}>
+                    <option value="hours">Hours</option>
+                    <option value="1-3 days">1-3 days</option>
+                    <option value=">3 days">More than 3 days</option>
+                    <option value=">1 week">More than 1 week</option>
+                  </select>
+                  <button className="chip-remove" onClick={() => removeSelectedItem(item.id)}><FaTimes /></button>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
+
+          <div className="analyze-row">
+            <button className="analyze-btn" onClick={analyzeSelected} disabled={selectedItems.length === 0 || loadingInsights}>
+              {loadingInsights ? 'Analyzing…' : 'Analyze Selected'}
+            </button>
           </div>
         </div>
       </section>
@@ -627,16 +761,36 @@ const Symptoms = () => {
       {/* Categories Section */}
       <section className="categories-section">
         <div className="categories-container">
-          <h2>Browse by Category</h2>
-          <div className="category-buttons">
+          <div className="categories-header">
+            <h2>Browse by Category</h2>
+            <p>Explore symptoms organized by body systems and conditions</p>
+          </div>
+          <div className="category-grid">
             {categories.map(category => (
               <button
                 key={category.id}
-                className={`category-button ${selectedCategory === category.id ? 'active' : ''}`}
+                className={`category-card ${selectedCategory === category.id ? 'active' : ''}`}
                 onClick={() => setSelectedCategory(category.id)}
               >
-                <category.icon className="category-icon" />
-                {category.name}
+                <div className="category-icon-wrapper">
+                  <category.icon className="category-icon" />
+                </div>
+                <span className="category-name">{category.name}</span>
+                <span className="category-count">
+                  {category.id === 'all' ? commonSymptoms.length : 
+                   getFilteredSymptoms().filter(s => {
+                     switch (category.id) {
+                       case 'common': return ['Fever', 'Headache', 'Cough', 'Weakness', 'Nausea'].includes(s.name);
+                       case 'digestive': return ['Stomach Pain', 'Nausea'].includes(s.name);
+                       case 'respiratory': return s.name === 'Cough';
+                       case 'pain': return ['Headache', 'Joint Pain', 'Stomach Pain'].includes(s.name);
+                       case 'cardiovascular': return ['High Blood Pressure', 'Low Blood Pressure'].includes(s.name);
+                       case 'skin': return ['Skin Rash'].includes(s.name);
+                       case 'sleep': return ['Insomnia'].includes(s.name);
+                       default: return false;
+                     }
+                   }).length}
+                </span>
               </button>
             ))}
           </div>
@@ -647,7 +801,10 @@ const Symptoms = () => {
       {!selectedSymptom && (
         <section className="common-symptoms-section">
           <div className="common-symptoms-container">
-            <h2>Common Symptoms and Conditions</h2>
+            <div className="symptoms-header">
+              <h2>Common Symptoms and Conditions</h2>
+              <p>Click on any symptom to get detailed information and treatment options</p>
+            </div>
             <div className="symptoms-grid">
               {filteredSymptoms.map(symptom => (
                 <div
@@ -655,14 +812,27 @@ const Symptoms = () => {
                   className="symptom-card-preview"
                   onClick={() => handleSymptomSelect(symptom)}
                 >
-                  <h3>{symptom.name}</h3>
-                  <p>{symptom.description}</p>
-                  <div className="symptom-card-footer">
-                    <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase()}`}>
+                  <div className="symptom-card-header">
+                    <div className="symptom-icon">
+                      <FaThermometerHalf />
+                    </div>
+                    <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase().replace(' ', '-')}`}>
                       {symptom.urgencyLevel}
                     </span>
+                  </div>
+                  <div className="symptom-card-content">
+                    <h3>{symptom.name}</h3>
+                    <p>{symptom.description}</p>
+                    <div className="symptom-tags">
+                      {symptom.possibleCauses.slice(0, 2).map((cause, index) => (
+                        <span key={index} className="symptom-tag">{cause}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="symptom-card-footer">
                     <button className="view-details-btn">
-                      View Details <BsArrowRight />
+                      <span>View Details</span>
+                      <BsArrowRight />
                     </button>
                   </div>
                 </div>

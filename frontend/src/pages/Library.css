@@ -684,10 +684,14 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 1rem;
+  padding: 1rem 1.1rem;
   cursor: pointer;
   box-shadow: 0 12px 28px rgba(0,0,0,0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 240px; /* same height for all cards */
 }
 
 .result-card:hover {
@@ -705,6 +709,7 @@
   font-weight: 800;
   color: #1a365d;
   margin-bottom: 0.25rem;
+  font-size: 1.1rem;
 }
 
 .result-card-type {
@@ -721,6 +726,8 @@
 .result-card-desc {
   color: #475569;
   font-size: 0.95rem;
+  line-height: 1.4;
+  flex: 1; /* push content to align heights evenly */
 }
 
 .medicine-card {

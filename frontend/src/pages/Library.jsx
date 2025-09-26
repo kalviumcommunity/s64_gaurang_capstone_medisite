@@ -14,7 +14,7 @@ import './Library.css';
 
 const Library = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [medicineType, setMedicineType] = useState('');
+  const [medicineType, setMedicineType] = useState('allopathic');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [medicineData, setMedicineData] = useState(null);
@@ -380,7 +380,7 @@ const Library = () => {
 
   // Build a flat list of searchable tokens for suggestions
   const searchableItems = useMemo(() => {
-    if (!medicineType) return [];
+    if (!medicineType || !medicines[medicineType]) return [];
     return medicines[medicineType].map(m => ({
       name: m.name,
       type: m.type,
@@ -845,32 +845,7 @@ const Library = () => {
           </div>
         </section>
 
-        {/* Educational Resources */}
-        <section className="educational-resources">
-          <div className="resources-container">
-            <h2>Learn More About Health & Medicine</h2>
-            <div className="resources-grid">
-              <div className="resource-card">
-                <FaHistory className="resource-icon" />
-                <h3>History of Medicine</h3>
-                <p>Explore the evolution of medical practices from ancient times to modern day</p>
-                <button className="resource-btn">Learn More</button>
-              </div>
-              <div className="resource-card">
-                <FaGlobe className="resource-icon" />
-                <h3>Global Health</h3>
-                <p>Understand how different cultures approach health and healing</p>
-                <button className="resource-btn">Learn More</button>
-              </div>
-              <div className="resource-card">
-                <FaAward className="resource-icon" />
-                <h3>Best Practices</h3>
-                <p>Discover evidence-based health practices and recommendations</p>
-                <button className="resource-btn">Learn More</button>
-              </div>
-            </div>
-          </div>
-        </section>
+        
 
         {/* Disclaimer */}
         <section className="disclaimer-section">
@@ -1012,7 +987,7 @@ const Library = () => {
         {/* Featured medicines when there are no search results yet */}
         {resultsList && resultsList.length === 0 && (
           <div className="library-results-grid">
-            {medicines[medicineType].slice(0, 9).map((med) => (
+            {(medicines[medicineType] || []).slice(0, 9).map((med) => (
               <button
                 key={med.name}
                 className={`result-card ${medicineData && medicineData.name === med.name ? 'active' : ''}`}
@@ -1050,7 +1025,7 @@ const Library = () => {
               <div className="detail-section uses-section">
                 <h3>Uses</h3>
                 <ul>
-                  {medicineData.uses.map((use, index) => (
+                  {(medicineData.uses || []).map((use, index) => (
                     <li key={index}><FaCheckCircle /> {use}</li>
                   ))}
                 </ul>
@@ -1059,7 +1034,7 @@ const Library = () => {
               <div className="detail-section side-effects-section">
                 <h3>Side Effects</h3>
                 <ul className="side-effects">
-                  {medicineData.sideEffects.map((effect, index) => (
+                  {(medicineData.sideEffects || []).map((effect, index) => (
                     <li key={index}><FaExclamationTriangle /> {effect}</li>
                   ))}
                 </ul>
@@ -1074,7 +1049,7 @@ const Library = () => {
               <div className="detail-section">
                   <h3>Indications</h3>
                   <ul>
-                    {medicineData.indications.map((i, idx) => (
+                    {(medicineData.indications || []).map((i, idx) => (
                       <li key={idx}><FaCheckCircle /> {i}</li>
                     ))}
                   </ul>
@@ -1092,7 +1067,7 @@ const Library = () => {
                 <div className="detail-section">
                   <h3>Contraindications</h3>
                   <ul>
-                    {medicineData.contraindications.map((c, idx) => (
+                    {(medicineData.contraindications || []).map((c, idx) => (
                       <li key={idx}><FaExclamationTriangle /> {c}</li>
                     ))}
                   </ul>
@@ -1103,7 +1078,7 @@ const Library = () => {
                 <div className="detail-section">
                   <h3>Drug/Herb Interactions</h3>
                   <ul>
-                    {medicineData.interactions.map((c, idx) => (
+                    {(medicineData.interactions || []).map((c, idx) => (
                       <li key={idx}><FaExclamationTriangle /> {c}</li>
                     ))}
                   </ul>
@@ -1159,7 +1134,7 @@ const Library = () => {
               <div className="detail-section precautions-section">
                 <h3>Precautions</h3>
                 <ul className="precautions">
-                  {medicineData.precautions.map((precaution, index) => (
+                  {(medicineData.precautions || []).map((precaution, index) => (
                     <li key={index}><FaExclamationTriangle /> {precaution}</li>
                   ))}
                 </ul>
@@ -1179,9 +1154,11 @@ const Library = () => {
                 </div>
               ) : (
                 aiInsights ? (
-                  <ReactMarkdown className="insights-content">
-                    {aiInsights}
-                  </ReactMarkdown>
+                  <div className="insights-content">
+                    <ReactMarkdown>
+                      {aiInsights}
+                    </ReactMarkdown>
+                  </div>
                 ) : (
                   <div className="no-insights">
                     <p>Additional AI-powered information is currently unavailable.</p>

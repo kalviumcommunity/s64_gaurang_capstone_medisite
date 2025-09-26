@@ -630,103 +630,100 @@ const Symptoms = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with side-by-side search (like Landing) */}
       <section className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title">Symptom Checker</h1>
-          <p className="hero-subtitle">Discover comprehensive health information with AI-powered insights</p>
-          <div className="hero-stats">
-            <div className="stat-item">
-              <span className="stat-number">11+</span>
-              <span className="stat-label">Common Symptoms</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">2</span>
-              <span className="stat-label">Medicine Types</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">AI</span>
-              <span className="stat-label">Powered Insights</span>
+        <div className="hero-content grid-two-cols">
+          <div className="hero-text">
+            <h1 className="hero-title">Symptom Checker</h1>
+            <p className="hero-subtitle">Discover comprehensive health information with AI-powered insights</p>
+            <div className="hero-stats">
+              <div className="stat-item">
+                <span className="stat-number">11+</span>
+                <span className="stat-label">Common Symptoms</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">2</span>
+                <span className="stat-label">Medicine Types</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">AI</span>
+                <span className="stat-label">Powered Insights</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+          <div className="hero-search">
+            <div className="search-container">
+              <h2>Find Your Symptoms</h2>
+              <p>Get instant information about symptoms, causes, and treatments</p>
+              <div className="search-box-container">
+                <SearchBar
+                  placeholder="Type symptoms like 'fever', 'headache', 'cough'..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onSubmit={handleSearch}
+                  onClear={handleSearchClear}
+                  size="large"
+                  inputRef={inputRef}
+                  onKeyDown={onKeyDown}
+                />
+                {showSuggestions && (
+                  <div className="suggestions-dropdown">
+                    {filteredSymptoms.length === 0 ? (
+                      <div className="no-results">No results. Try different terms.</div>
+                    ) : (
+                      filteredSymptoms.map((symptom, index) => (
+                        <div
+                          key={symptom.id}
+                          className={`suggestion-item ${index === highlightIndex ? 'highlight' : ''}`}
+                          onClick={() => handleSymptomSelect(symptom)}
+                          onMouseEnter={() => setHighlightIndex(index)}
+                        >
+                          <FaThermometerHalf className="suggestion-icon" />
+                          <div className="suggestion-content">
+                            <span className="suggestion-name">{symptom.name}</span>
+                            <span className="suggestion-desc">{symptom.description.substring(0, 60)}...</span>
+                          </div>
+                          <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase().replace(' ', '-')}`}>
+                            {symptom.urgencyLevel}
+                          </span>
+                          <button className="add-chip-btn" onClick={(e) => { e.stopPropagation(); addSelectedItem(symptom); }}>Add</button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
 
-      {/* Search Section */}
-      <section className="search-section">
-        <div className="search-container">
-          <div className="search-header">
-            <h2>Find Your Symptoms</h2>
-            <p>Get instant information about symptoms, causes, and treatments</p>
-          </div>
-          <div className="search-box-container">
-            <SearchBar
-              placeholder="Type symptoms like 'fever', 'headache', 'cough'..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onSubmit={handleSearch}
-              onClear={handleSearchClear}
-              size="large"
-              inputRef={inputRef}
-              onKeyDown={onKeyDown}
-            />
-            {showSuggestions && (
-              <div className="suggestions-dropdown">
-                {filteredSymptoms.length === 0 ? (
-                  <div className="no-results">No results. Try different terms.</div>
+              <div className="selected-chips">
+                {selectedItems.length === 0 ? (
+                  <div className="empty-selected">No symptoms selected.</div>
                 ) : (
-                  filteredSymptoms.map((symptom, index) => (
-                    <div
-                      key={symptom.id}
-                      className={`suggestion-item ${index === highlightIndex ? 'highlight' : ''}`}
-                      onClick={() => handleSymptomSelect(symptom)}
-                      onMouseEnter={() => setHighlightIndex(index)}
-                    >
-                      <FaThermometerHalf className="suggestion-icon" />
-                      <div className="suggestion-content">
-                        <span className="suggestion-name">{symptom.name}</span>
-                        <span className="suggestion-desc">{symptom.description.substring(0, 60)}...</span>
-                      </div>
-                      <span className={`urgency-badge ${symptom.urgencyLevel.toLowerCase().replace(' ', '-')}`}>
-                        {symptom.urgencyLevel}
-                      </span>
-                      <button className="add-chip-btn" onClick={(e) => { e.stopPropagation(); addSelectedItem(symptom); }}>Add</button>
+                  selectedItems.map(item => (
+                    <div key={item.id} className="chip">
+                      <span className="chip-name">{item.name}</span>
+                      <select className="chip-select" value={item.severity} onChange={(e) => updateSelectedItem(item.id, 'severity', e.target.value)}>
+                        <option value="mild">Mild</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="severe">Severe</option>
+                      </select>
+                      <select className="chip-select" value={item.duration} onChange={(e) => updateSelectedItem(item.id, 'duration', e.target.value)}>
+                        <option value="hours">Hours</option>
+                        <option value="1-3 days">1-3 days</option>
+                        <option value=">3 days">More than 3 days</option>
+                        <option value=">1 week">More than 1 week</option>
+                      </select>
+                      <button className="chip-remove" onClick={() => removeSelectedItem(item.id)}><FaTimes /></button>
                     </div>
                   ))
                 )}
               </div>
-            )}
-          </div>
 
-          {/* Selected chips and controls */}
-          <div className="selected-chips">
-            {selectedItems.length === 0 ? (
-              <div className="empty-selected">No symptoms selected.</div>
-            ) : (
-              selectedItems.map(item => (
-                <div key={item.id} className="chip">
-                  <span className="chip-name">{item.name}</span>
-                  <select className="chip-select" value={item.severity} onChange={(e) => updateSelectedItem(item.id, 'severity', e.target.value)}>
-                    <option value="mild">Mild</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="severe">Severe</option>
-                  </select>
-                  <select className="chip-select" value={item.duration} onChange={(e) => updateSelectedItem(item.id, 'duration', e.target.value)}>
-                    <option value="hours">Hours</option>
-                    <option value="1-3 days">1-3 days</option>
-                    <option value=">3 days">More than 3 days</option>
-                    <option value=">1 week">More than 1 week</option>
-                  </select>
-                  <button className="chip-remove" onClick={() => removeSelectedItem(item.id)}><FaTimes /></button>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="analyze-row">
-            <button className="analyze-btn" onClick={analyzeSelected} disabled={selectedItems.length === 0}>
-              Analyze Selected
-            </button>
+              <div className="analyze-row">
+                <button className="analyze-btn" onClick={analyzeSelected} disabled={selectedItems.length === 0}>
+                  Analyze Selected
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -29,8 +29,16 @@
 }
 
 .hero-content {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Side-by-side layout mirroring Landing */
+.grid-two-cols {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3rem;
+  align-items: center;
 }
 
 .hero-title {
@@ -97,38 +105,23 @@
 }
 
 /* Search Section */
-.search-section {
-  padding: 4rem 2rem;
+/* Compact hero search card */
+.hero-search {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  margin: 2rem;
   border-radius: 24px;
+  padding: 2rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.search-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
+.search-container { max-width: 100%; margin: 0; }
 
-.search-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
+.search-header { text-align: center; margin-bottom: 1rem; }
 
-.search-header h2 {
-  font-size: 2.5rem;
-  color: #1a365d;
-  margin-bottom: 1rem;
-  font-weight: 700;
-}
+.search-header h2 { font-size: 1.6rem; color: #1a365d; margin-bottom: 0.25rem; font-weight: 800; }
 
-.search-header p {
-  font-size: 1.1rem;
-  color: #4a5568;
-  font-weight: 400;
-}
+.search-header p { font-size: 0.95rem; color: #4a5568; font-weight: 500; }
 
 .search-box {
   display: flex;
@@ -731,12 +724,7 @@
 }
 
 /* Search Section Improvements */
-.search-box-container {
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-}
+.search-box-container { position: relative; width: 100%; max-width: 100%; margin: 0; }
 
 .suggestions-dropdown {
   position: absolute;
@@ -893,6 +881,8 @@
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+  .grid-two-cols { grid-template-columns: 1fr; gap: 1.5rem; }
+  .hero-search { padding: 1.25rem; }
   .hero-section {
     padding: 6rem 1rem 3rem;
   }

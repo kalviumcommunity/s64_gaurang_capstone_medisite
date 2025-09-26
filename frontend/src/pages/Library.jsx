@@ -962,19 +962,7 @@ const Library = () => {
               <button
                 key={med.name}
                 className={`result-card ${medicineData && medicineData.name === med.name ? 'active' : ''}`}
-                onClick={async () => {
-                  setMedicineData(med);
-                  setAiInsights('');
-                  setLoadingInsights(true);
-                  try {
-                    const data = await apiService.getMedicineInformation(med.name);
-                    setAiInsights(data.response);
-                  } catch (error) {
-                    console.error('Error getting medicine information:', error);
-                  } finally {
-                    setLoadingInsights(false);
-                  }
-                }}
+                onClick={() => navigate(`/medicine/${encodeURIComponent(med.name)}?type=${medicineType}`,{ state: { medicine: med, type: medicineType } })}
               >
                 <div className="result-card-title">{med.name}</div>
                 <div className="result-card-type">{med.type}</div>
@@ -991,19 +979,7 @@ const Library = () => {
               <button
                 key={med.name}
                 className={`result-card ${medicineData && medicineData.name === med.name ? 'active' : ''}`}
-                onClick={async () => {
-                  setMedicineData(med);
-                  setAiInsights('');
-                  setLoadingInsights(true);
-                  try {
-                    const data = await apiService.getMedicineInformation(med.name);
-                    setAiInsights(data.response);
-                  } catch (error) {
-                    console.error('Error getting medicine information:', error);
-                  } finally {
-                    setLoadingInsights(false);
-                  }
-                }}
+                onClick={() => navigate(`/medicine/${encodeURIComponent(med.name)}?type=${medicineType}`,{ state: { medicine: med, type: medicineType } })}
               >
                 <div className="result-card-title">{med.name}</div>
                 <div className="result-card-type">{med.type}</div>

@@ -8,6 +8,7 @@ import Profile from './pages/Profile';
 import Symptoms from './pages/Symptoms';
 import SymptomDetail from './pages/SymptomDetail';
 import Library from './pages/Library';
+import MedicineDetail from './pages/MedicineDetail';
 import ChatAssistant from './components/ChatAssistant';
 
 function App() {
@@ -39,6 +40,11 @@ function App() {
           <Route path="/library" element={
             <PrivateRoute>
               <Library />
+            </PrivateRoute>
+          } />
+          <Route path="/medicine/:name" element={
+            <PrivateRoute>
+              <MedicineDetail />
             </PrivateRoute>
           } />
           {/* Chat page removed; floating assistant available on all pages */}

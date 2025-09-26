@@ -1,5 +1,6 @@
+import { FiLogOut } from 'react-icons/fi';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Landing.css';
 import SearchBar from '../components/SearchBar';
 
@@ -13,6 +14,11 @@ const Landing = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [libraryCategory, setLibraryCategory] = useState('allopathic');
+  const location = useLocation();
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
@@ -105,10 +111,11 @@ const Landing = () => {
           <span className="subtitle">Health Guide</span>
         </div>
         <div className="nav-links">
-          <Link to="/"><FaHome /> Home</Link>
-          <Link to="/symptoms"><FaSearch /> Symptoms</Link>
-          <Link to="/library"><FaBook /> Medicine Library</Link>
-          <Link to="/profile"><FaUser /> Profile</Link>
+          <Link to="/" className={location.pathname === '/' ? 'active' : ''}><FaHome /> Home</Link>
+          <Link to="/symptoms" className={location.pathname === '/symptoms' ? 'active' : ''}><FaSearch /> Symptoms</Link>
+          <Link to="/library" className={location.pathname === '/library' ? 'active' : ''}><FaBook /> Medicine Library</Link>
+          <Link to="/profile" className={location.pathname === '/profile' ? 'active' : ''}><FaUser /> Profile</Link>
+          <button onClick={handleLogout} className="logout-btn"><FiLogOut /> Logout</button>
         </div>
       </nav>
 

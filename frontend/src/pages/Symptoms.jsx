@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaSearch, FaTimes, FaThermometerHalf, FaPills, FaHome, FaBook, FaUser } from 'react-icons/fa';
+import { FiLogOut } from 'react-icons/fi';
 import { GiMedicines } from 'react-icons/gi';
 import { BsArrowRight } from 'react-icons/bs';
 import { useAuth } from '../context/AuthContext';
@@ -627,6 +628,7 @@ const Symptoms = () => {
           <Link to="/symptoms" className="active"><FaSearch /> Symptoms</Link>
           <Link to="/library"><FaBook /> Medicine Library</Link>
           <Link to="/profile"><FaUser /> Profile</Link>
+          <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }} className="logout-btn"><FiLogOut /> Logout</button>
         </div>
       </nav>
 

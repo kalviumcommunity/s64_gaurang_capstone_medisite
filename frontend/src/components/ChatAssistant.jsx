@@ -24,6 +24,13 @@ const ChatAssistant = () => {
     if (isOpen) scrollToBottom();
   }, [messages, isOpen]);
 
+  // Allow other parts of the app to open the assistant
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('open-chat-assistant', handleOpen);
+    return () => window.removeEventListener('open-chat-assistant', handleOpen);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;

@@ -12,6 +12,7 @@ import { MdOutlineHealthAndSafety } from 'react-icons/md';
 const Landing = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [chatMessage, setChatMessage] = useState('');
+  const [libraryCategory, setLibraryCategory] = useState('allopathic');
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
@@ -59,7 +60,7 @@ const Landing = () => {
     navigate(`/library?type=allopathic&q=${encodeURIComponent(medicineName)}`);
   };
 
-  const medicines = [
+  const allopathicPreview = [
     {
       name: 'Acetaminophen',
       type: 'Pain Reliever',
@@ -74,6 +75,24 @@ const Landing = () => {
       name: 'Ibuprofen',
       type: 'Anti-inflammatory',
       description: 'Reduces inflammation, pain and fever.',
+    }
+  ];
+
+  const ayurvedicPreview = [
+    {
+      name: 'Ashwagandha',
+      type: 'Adaptogen',
+      description: 'Helps manage stress, supports sleep and vitality.',
+    },
+    {
+      name: 'Triphala',
+      type: 'Digestive Tonic',
+      description: 'Traditional blend that supports digestion and detox.',
+    },
+    {
+      name: 'Brahmi',
+      type: 'Brain Health',
+      description: 'Supports memory, focus, and mental clarity.',
     }
   ];
 
@@ -199,9 +218,13 @@ const Landing = () => {
                 <span className="highlight">Instant Answers</span>
                 <span className="highlight">Personalized</span>
               </div>
-              <Link to="/chat" className="feature-cta">
+              <button
+                type="button"
+                className="feature-cta"
+                onClick={() => window.dispatchEvent(new Event('open-chat-assistant'))}
+              >
                 Start Chatting <BsArrowRight />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -218,17 +241,25 @@ const Landing = () => {
           </div>
           <div className="medicine-showcase">
             <div className="medicine-categories">
-              <div className="category-tab active">
+              <button
+                type="button"
+                className={`category-tab ${libraryCategory === 'allopathic' ? 'active' : ''}`}
+                onClick={() => setLibraryCategory('allopathic')}
+              >
                 <GiMedicines className="category-icon" />
                 <span>Allopathic</span>
-              </div>
-              <div className="category-tab">
+              </button>
+              <button
+                type="button"
+                className={`category-tab ${libraryCategory === 'ayurvedic' ? 'active' : ''}`}
+                onClick={() => setLibraryCategory('ayurvedic')}
+              >
                 <GiHerbsBundle className="category-icon" />
                 <span>Ayurvedic</span>
-              </div>
+              </button>
             </div>
             <div className="medicines-grid">
-              {medicines.map((medicine, index) => (
+              {(libraryCategory === 'allopathic' ? allopathicPreview : ayurvedicPreview).map((medicine, index) => (
                 <div key={index} className="medicine-card">
                   <div className="medicine-header">
                     <h3>{medicine.name}</h3>
@@ -244,7 +275,7 @@ const Landing = () => {
               ))}
             </div>
             <div className="medicine-cta">
-              <button className="explore-library-btn" onClick={() => navigate('/library?type=allopathic')}>
+              <button className="explore-library-btn" onClick={() => navigate(`/library?type=${libraryCategory}`)}>
                 Explore Full Library
                 <BsArrowRight />
               </button>

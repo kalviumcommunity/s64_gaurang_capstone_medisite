@@ -26,6 +26,7 @@ const diseaseRoutes = require('./routes/diseaseRoutes');
 const diagnosisRoutes = require('./routes/diagnosisRoutes');
 const userRoutes = require('./routes/userRoutes');
 const searchHistoryRoutes = require('./routes/searchHistory');
+const geminiRoutes = require('./routes/geminiRoutes');
 
 // Use Routes
 app.use('/api/symptoms', symptomRoutes);
@@ -35,12 +36,13 @@ app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search-history', searchHistoryRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/gemini', geminiRoutes);
 
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const apiKey = process.env.DEEP_SEEK_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'DeepSeek API key not set' });
     }

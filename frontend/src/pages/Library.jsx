@@ -8,7 +8,7 @@ import {
   FaStethoscope, FaFlask, FaSeedling, FaBalanceScale, FaStar, FaArrowRight,
   FaInfoCircle, FaHistory, FaGlobe, FaAward, FaHandsHelping
 } from 'react-icons/fa';
-import { getMedicineInformation } from '../services/deepSeekService';
+import apiService from '../services/apiService';
 import SearchBar from '../components/SearchBar';
 import './Library.css';
 
@@ -463,7 +463,8 @@ const Library = () => {
       // Get AI insights for the selected medicine
       try {
         setLoadingInsights(true);
-        const insights = await getMedicineInformation(results[0].name);
+        const data = await apiService.getMedicineInformation(results[0].name);
+        const insights = data.response;
         setAiInsights(insights);
       } catch (error) {
         console.error('Error getting AI insights for medicine:', error);
@@ -986,14 +987,18 @@ const Library = () => {
               <button
                 key={med.name}
                 className={`result-card ${medicineData && medicineData.name === med.name ? 'active' : ''}`}
-                onClick={() => {
+                onClick={async () => {
                   setMedicineData(med);
                   setAiInsights('');
                   setLoadingInsights(true);
-                  getMedicineInformation(med.name)
-                    .then((insights) => setAiInsights(insights))
-                    .catch(() => {})
-                    .finally(() => setLoadingInsights(false));
+                  try {
+                    const data = await apiService.getMedicineInformation(med.name);
+                    setAiInsights(data.response);
+                  } catch (error) {
+                    console.error('Error getting medicine information:', error);
+                  } finally {
+                    setLoadingInsights(false);
+                  }
                 }}
               >
                 <div className="result-card-title">{med.name}</div>
@@ -1011,14 +1016,18 @@ const Library = () => {
               <button
                 key={med.name}
                 className={`result-card ${medicineData && medicineData.name === med.name ? 'active' : ''}`}
-                onClick={() => {
+                onClick={async () => {
                   setMedicineData(med);
                   setAiInsights('');
                   setLoadingInsights(true);
-                  getMedicineInformation(med.name)
-                    .then((insights) => setAiInsights(insights))
-                    .catch(() => {})
-                    .finally(() => setLoadingInsights(false));
+                  try {
+                    const data = await apiService.getMedicineInformation(med.name);
+                    setAiInsights(data.response);
+                  } catch (error) {
+                    console.error('Error getting medicine information:', error);
+                  } finally {
+                    setLoadingInsights(false);
+                  }
                 }}
               >
                 <div className="result-card-title">{med.name}</div>

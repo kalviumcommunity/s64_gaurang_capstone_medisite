@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaRobot, FaUser, FaPaperPlane } from 'react-icons/fa';
-import { getHealthAssistantResponse } from '../services/deepSeekService';
+import apiService from '../services/apiService';
 import './ChatAssistant.css';
 
 const ChatAssistant = () => {
@@ -36,11 +36,12 @@ const ChatAssistant = () => {
 
     try {
       const conversationHistory = messages.map((msg) => ({ role: msg.role, content: msg.content }));
-      const response = await getHealthAssistantResponse(userMessage, conversationHistory);
-      setMessages((prev) => [...prev, { role: 'assistant', content: response }]);
+      const data = await apiService.getHealthAssistantResponse(userMessage, conversationHistory);
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.response }]);
+      setError(null); // Clear any previous errors
     } catch (err) {
       console.error('Error communicating with AI service:', err);
-      setError('Connection issue. Please try again later.');
+      setError('I\'m experiencing technical difficulties. Please try again or consult a healthcare professional for immediate concerns.');
     } finally {
       setIsLoading(false);
     }

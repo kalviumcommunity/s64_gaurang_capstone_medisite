@@ -5,7 +5,7 @@ import { GiMedicines } from 'react-icons/gi';
 import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 import { BsArrowRight } from 'react-icons/bs';
 import { useAuth } from '../context/AuthContext';
-import { getHealthInformation, testAPIConnection } from '../services/deepSeekService';
+import apiService from '../services/apiService';
 import './SymptomDetail.css';
 
 const SymptomDetail = () => {
@@ -460,7 +460,8 @@ const SymptomDetail = () => {
       setLoadingInsights(true);
       setAiInsights('');
       console.log('Fetching AI insights for:', symptom.name);
-      const insights = await getHealthInformation(symptom.name);
+      const data = await apiService.getHealthInformation(symptom.name);
+      const insights = data.response;
       console.log('AI insights received:', insights);
       setAiInsights(insights);
     } catch (error) {
@@ -611,7 +612,7 @@ const SymptomDetail = () => {
                   <button 
                     className="test-api-btn"
                     onClick={async () => {
-                      const result = await testAPIConnection();
+                      const result = await apiService.testAIConnection();
                       alert(result.success ? 'API is working!' : `API Error: ${result.message}`);
                     }}
                   >

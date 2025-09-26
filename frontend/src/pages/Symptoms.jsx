@@ -5,7 +5,7 @@ import { GiMedicines } from 'react-icons/gi';
 import { BsArrowRight } from 'react-icons/bs';
 import { useAuth } from '../context/AuthContext';
 import SearchBar from '../components/SearchBar';
-import { getHealthInformation } from '../services/deepSeekService';
+import apiService from '../services/apiService';
 import './Symptoms.css';
 
 const Symptoms = () => {
@@ -585,7 +585,8 @@ const Symptoms = () => {
     if (selectedItems.length === 0) return;
     try {
       const prompt = `Symptoms: ${selectedItems.map(s => `${s.name} (severity: ${s.severity}, duration: ${s.duration})`).join(', ')}. Provide likely causes, red flags, and next steps.`;
-      const insights = await getHealthInformation(prompt);
+      const data = await apiService.getHealthInformation(prompt);
+      const insights = data.response;
       
       // save diagnosis history if logged in
       const token = localStorage.getItem('token');

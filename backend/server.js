@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,14 +6,23 @@ const authRoutes = require('./routes/auth');
 const fileUpload = require('express-fileupload');
 const fetch = require('node-fetch');
 
-
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://your-netlify-app.netlify.app', // Replace with your actual Netlify URL
+    'https://mediverse-health-guide.netlify.app' // Example Netlify URL
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(fileUpload());
 app.use('/uploads', express.static(__dirname + '/uploads'));
@@ -80,20 +88,49 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // Base route
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to MediVerse API' });
+  res.json({ 
+    message: 'Welcome to MediVerse API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      symptoms: '/api/symptoms',
+      medicines: '/api/medicines',
+      diseases: '/api/diseases',
+      users: '/api/users',
+      chat: '/api/chat',
+      health: '/health'
+    }
+  });
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mediverse', {
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mediverse';
+mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+.then(() => {
+  console.log('MongoDB Connected');
+  console.log('Database:', mongoURI.includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB');
+})
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  console.log('Server will continue without database connection');
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`CORS origins: ${process.env.NODE_ENV === 'production' ? 'Production URLs' : 'Local development'}`);
 });

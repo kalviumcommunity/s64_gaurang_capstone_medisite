@@ -7,6 +7,7 @@ const User = require('../models/User');
 // Register route
 router.post('/register', async (req, res) => {
   try {
+    console.log('Register request received:', { name: req.body.name, email: req.body.email });
     const { name, email, password } = req.body;
 
     // Check if user already exists
@@ -42,13 +43,16 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Login route
 router.post('/login', async (req, res) => {
   try {
+    console.log('Login request received:', { email: req.body.email });
     const { email, password } = req.body;
 
     // Check if user exists
@@ -80,7 +84,9 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

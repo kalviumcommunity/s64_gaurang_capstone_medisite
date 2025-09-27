@@ -67,7 +67,7 @@ const HealthMetrics = () => {
   const saveToSearchHistory = async (searchQuery, type) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta?.env?.VITE_BACKEND_URL || 'http://localhost:5001'}/api/users/search-history`, {
+      const response = await fetch(`${import.meta?.env?.VITE_BACKEND_URL || 'https://s64-gaurang-capstone-medisite-12.onrender.com'}/api/users/search-history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -17,7 +17,7 @@ const Profile = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const BACKEND_BASE_URL = import.meta?.env?.VITE_BACKEND_URL || 'http://localhost:5001';
+  const BACKEND_BASE_URL = import.meta?.env?.VITE_BACKEND_URL || 'https://s64-gaurang-capstone-medisite-12.onrender.com';
 
   useEffect(() => {
     fetchUserData();

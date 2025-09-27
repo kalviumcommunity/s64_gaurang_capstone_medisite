@@ -3,7 +3,7 @@
  * Handles all backend API communications with consistent error handling
  */
 
-const BACKEND_BASE_URL = import.meta?.env?.VITE_BACKEND_URL || 'http://localhost:5001';
+const BACKEND_BASE_URL = import.meta?.env?.VITE_BACKEND_URL || 'https://s64-gaurang-capstone-medisite-12.onrender.com';
 
 class ApiService {
   constructor() {

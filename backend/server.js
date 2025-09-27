@@ -16,8 +16,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://your-netlify-app.netlify.app', // Replace with your actual Netlify URL
-    'https://mediverse-health-guide.netlify.app' // Example Netlify URL
+    'https://medim.netlify.app/', 
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

@@ -4,6 +4,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const path = require('path');
+const mongoose = require('mongoose');
+const { getUserById, updateUser } = require('../utils/fallbackStorage');
 
 // Register a new user
 router.post('/register', async (req, res) => {
@@ -85,6 +87,25 @@ router.post('/login', async (req, res) => {
 // Get user profile
 router.get('/profile', auth, async (req, res) => {
   try {
+    console.log('Profile request received for user:', req.user.userId);
+    
+    // Check database connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('Database not connected. Using fallback storage. Ready state:', mongoose.connection.readyState);
+      
+      // Use fallback storage - find user by ID
+      const user = getUserById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Return user data without password
+      const userData = { ...user };
+      delete userData.password;
+      return res.json(userData);
+    }
+
+    // Use database
     const user = await User.findById(req.user.userId).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -92,6 +113,8 @@ router.get('/profile', auth, async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('Error fetching profile:', error);
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ message: 'Error fetching profile', error: error.message });
   }
 });
@@ -99,6 +122,25 @@ router.get('/profile', auth, async (req, res) => {
 // Get current user (alias for profile)
 router.get('/me', auth, async (req, res) => {
   try {
+    console.log('Me request received for user:', req.user.userId);
+    
+    // Check database connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('Database not connected. Using fallback storage. Ready state:', mongoose.connection.readyState);
+      
+      // Use fallback storage - find user by ID
+      const user = getUserById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Return user data without password
+      const userData = { ...user };
+      delete userData.password;
+      return res.json(userData);
+    }
+
+    // Use database
     const user = await User.findById(req.user.userId).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -106,6 +148,8 @@ router.get('/me', auth, async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ message: 'Error fetching user', error: error.message });
   }
 });

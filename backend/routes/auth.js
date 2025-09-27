@@ -4,9 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('../models/User');
-
-// Fallback in-memory user store for when database is not available
-const fallbackUsers = new Map();
+const { addUser, getUserByEmail, getUserById } = require('../utils/fallbackStorage');
 
 // Register route
 router.post('/register', async (req, res) => {
@@ -24,7 +22,7 @@ router.post('/register', async (req, res) => {
       console.error('Database not connected. Using fallback storage. Ready state:', mongoose.connection.readyState);
       
       // Use fallback storage
-      if (fallbackUsers.has(email)) {
+      if (getUserByEmail(email)) {
         return res.status(400).json({ message: 'User already exists' });
       }
 
@@ -37,10 +35,19 @@ router.post('/register', async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        createdAt: new Date()
+        createdAt: new Date(),
+        healthScore: 80,
+        healthMetrics: {
+          physicalHealth: 80,
+          mentalWellbeing: 80,
+          dietQuality: 80,
+          activityLevel: 80
+        },
+        totalSearches: 0,
+        lastHealthUpdate: new Date()
       };
       
-      fallbackUsers.set(email, user);
+      addUser(user);
       
       // Create JWT token
       const token = jwt.sign(
@@ -116,7 +123,7 @@ router.post('/login', async (req, res) => {
       console.error('Database not connected. Using fallback storage. Ready state:', mongoose.connection.readyState);
       
       // Use fallback storage
-      const user = fallbackUsers.get(email);
+      const user = getUserByEmail(email);
       if (!user) {
         return res.status(400).json({ message: 'Invalid credentials' });
       }

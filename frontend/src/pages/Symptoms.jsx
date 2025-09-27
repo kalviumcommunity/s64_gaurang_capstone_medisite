@@ -503,7 +503,7 @@ const Symptoms = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:5001/api/users/search-history', {
+      const response = await fetch(`${import.meta?.env?.VITE_BACKEND_URL || 'http://localhost:5001'}/api/users/search-history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -592,7 +592,7 @@ const Symptoms = () => {
       // save diagnosis history if logged in
       const token = localStorage.getItem('token');
       if (user && token) {
-        await fetch('http://localhost:5001/api/diagnosis', {
+        await fetch(`${import.meta?.env?.VITE_BACKEND_URL || 'http://localhost:5001'}/api/diagnosis`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

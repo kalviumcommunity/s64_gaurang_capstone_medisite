@@ -29,15 +29,19 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        // Improved error handling - check if response can be parsed as JSON
+        // Read response body only once
+        const errorText = await response.text();
+        let errorMessage = 'Login failed';
+        
         try {
-          const error = await response.json();
-          throw new Error(error.message || 'Login failed');
-        } catch (jsonError) {
-          // If JSON parsing fails, use response text instead
-          const errorText = await response.text();
-          throw new Error('Server error: ' + (errorText.slice(0, 100) || 'Login failed'));
+          const error = JSON.parse(errorText);
+          errorMessage = error.message || error.error || 'Login failed';
+        } catch (parseError) {
+          // If JSON parsing fails, use the text as is
+          errorMessage = errorText.slice(0, 100) || 'Login failed';
         }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -64,15 +68,19 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        // Improved error handling - check if response can be parsed as JSON
+        // Read response body only once
+        const errorText = await response.text();
+        let errorMessage = 'Signup failed';
+        
         try {
-          const error = await response.json();
-          throw new Error(error.message || 'Signup failed');
-        } catch (jsonError) {
-          // If JSON parsing fails, use response text instead
-          const errorText = await response.text();
-          throw new Error('Server error: ' + (errorText.slice(0, 100) || 'Signup failed'));
+          const error = JSON.parse(errorText);
+          errorMessage = error.message || error.error || 'Signup failed';
+        } catch (parseError) {
+          // If JSON parsing fails, use the text as is
+          errorMessage = errorText.slice(0, 100) || 'Signup failed';
         }
+        
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();

@@ -144,16 +144,19 @@ app.get('/', (req, res) => {
 
 // Connect to MongoDB
 const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mediverse';
+console.log('Attempting to connect to MongoDB...');
+console.log('MongoDB URI:', mongoURI ? 'Set' : 'Not set');
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 .then(() => {
-  console.log('MongoDB Connected');
+  console.log('MongoDB Connected successfully');
   console.log('Database:', mongoURI.includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB');
 })
 .catch(err => {
   console.error('MongoDB connection error:', err);
+  console.error('MongoDB error details:', err.message);
   console.log('Server will continue without database connection');
 });
 
@@ -161,4 +164,8 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`CORS origins: ${process.env.NODE_ENV === 'production' ? 'Production URLs' : 'Local development'}`);
+  console.log('Environment variables check:');
+  console.log('- JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Not set');
+  console.log('- MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+  console.log('- NODE_ENV:', process.env.NODE_ENV || 'Not set');
 });

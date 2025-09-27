@@ -2,13 +2,62 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
+
+// Fallback in-memory user store for when database is not available
+const fallbackUsers = new Map();
 
 // Register route
 router.post('/register', async (req, res) => {
   try {
     console.log('Register request received:', { name: req.body.name, email: req.body.email });
     const { name, email, password } = req.body;
+
+    // Validate input
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+
+    // Check database connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('Database not connected. Using fallback storage. Ready state:', mongoose.connection.readyState);
+      
+      // Use fallback storage
+      if (fallbackUsers.has(email)) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
+
+      // Hash password for fallback storage
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      
+      const user = {
+        id: Date.now().toString(),
+        name,
+        email,
+        password: hashedPassword,
+        createdAt: new Date()
+      };
+      
+      fallbackUsers.set(email, user);
+      
+      // Create JWT token
+      const token = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET || 'your_jwt_secret_key',
+        { expiresIn: '24h' }
+      );
+
+      return res.status(201).json({
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      });
+    }
 
     // Check if user already exists
     let user = await User.findOne({ email });
@@ -45,6 +94,8 @@ router.post('/register', async (req, res) => {
     console.error('Register error:', error);
     console.error('Error details:', error.message);
     console.error('Stack trace:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error code:', error.code);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -54,6 +105,44 @@ router.post('/login', async (req, res) => {
   try {
     console.log('Login request received:', { email: req.body.email });
     const { email, password } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    // Check database connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('Database not connected. Using fallback storage. Ready state:', mongoose.connection.readyState);
+      
+      // Use fallback storage
+      const user = fallbackUsers.get(email);
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+
+      // Check password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+
+      // Create JWT token
+      const token = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET || 'your_jwt_secret_key',
+        { expiresIn: '24h' }
+      );
+
+      return res.json({
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      });
+    }
 
     // Check if user exists
     const user = await User.findOne({ email });
@@ -86,6 +175,8 @@ router.post('/login', async (req, res) => {
     console.error('Login error:', error);
     console.error('Error details:', error.message);
     console.error('Stack trace:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error code:', error.code);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

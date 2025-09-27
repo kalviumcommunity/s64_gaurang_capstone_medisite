@@ -16,7 +16,8 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://medim.netlify.app/', 
+    'https://medim.netlify.app',
+    'https://68d7838df00e1829823568--medim.netlify.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

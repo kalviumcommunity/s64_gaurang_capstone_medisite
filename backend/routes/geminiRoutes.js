@@ -5,9 +5,6 @@ const fetch = require('node-fetch');
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GOOGLE_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
-/**
- * Get a health-related response from MediVerse AI Health Assistant
- */
 router.post('/health-assistant', async (req, res) => {
   try {
     const { message, conversationHistory = [] } = req.body;

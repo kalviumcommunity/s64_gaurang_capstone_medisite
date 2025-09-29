@@ -12,7 +12,6 @@ const medicineSchema = new mongoose.Schema({
 
 module.exports = mongoose.model('Medicine', medicineSchema);
 
-
 // const mongoose = require('mongoose');
 
 // const medicineSchema = new mongoose.Schema({
@@ -29,3 +28,4 @@ module.exports = mongoose.model('Medicine', medicineSchema);
 // });
 
 // module.exports = mongoose.model('Medicine', medicineSchema);
+

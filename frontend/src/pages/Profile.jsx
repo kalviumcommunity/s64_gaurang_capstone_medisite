@@ -28,25 +28,42 @@ const Profile = () => {
     setError(null);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
       const response = await fetch(`${BACKEND_BASE_URL}/api/users/profile`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
+      
       if (!response.ok) {
-        // Try to parse server error for better feedback
         let message = 'Failed to fetch user data';
         try {
           const err = await response.json();
           message = err.message || message;
         } catch {}
+        
         if (response.status === 401) {
+          // Token is invalid or expired
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setTimeout(() => navigate('/login'), 0);
+          return;
         }
+        
+        if (response.status === 404) {
+          // User not found - clear auth data and redirect to login
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => navigate('/login'), 0);
+          return;
+        }
+        
         throw new Error(message);
       }
+      
       const data = await response.json();
       const resolvedPhoto = data?.profilePhoto
         ? (data.profilePhoto.startsWith('http')
